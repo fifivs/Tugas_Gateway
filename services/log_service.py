@@ -18,9 +18,9 @@ async def catat_log_mongo(user_id: str, endpoint: str, data_tambahan: dict = Non
     }
     try:
         await log_collection.insert_one(document)
-        print(f"✅ Log {user_id} berhasil disimpan ke MongoDB Atlas!")
+        print(f"[OK] Log {user_id} berhasil disimpan ke MongoDB Atlas!")
     except Exception as e:
-        print(f"❌ Gagal simpan log: {e}")
+        print(f"[ERROR] Gagal simpan log: {e}")
 
 def hitung_fee_gateway(amount: float):
     """Algoritma hitung fee 0.5%"""

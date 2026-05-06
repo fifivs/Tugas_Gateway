@@ -1,7 +1,7 @@
 import httpx
 
 # Ini daftar alamat aplikasi lain (nanti lu ganti sesuai IP temen kelompok lu)
-URL_SMARTBANK = "http://127.0.0.1:8001/smartbank/pembayaran_transaksi"
+URL_SMARTBANK = "http://127.0.0.1:8000/smartbank/pembayaran_transaksi"
 
 async def teruskan_ke_smartbank(data_transaksi: dict):
     """Fungsi Algoritma Routing untuk meneruskan request ke SmartBank"""

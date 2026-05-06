@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Gateway UMKM - Solusi integrasi pembayaran untuk UMKM Indonesia. Aman, cepat, dan terpercaya.">
+  <title>Gateway UMKM — Solusi Pembayaran UMKM</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/landing.css">
+</head>
+
+<body>
+
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="landing-navbar" id="landingNavbar">
+    <div class="nav-container">
+      <div class="nav-brand">
+        <div class="brand-icon">⚡</div>
+        <span class="brand-text">Gateway UMKM</span>
+      </div>
+      <div class="nav-links" id="navLinks">
+        <a href="#hero" class="nav-link">Beranda</a>
+        <a href="#about" class="nav-link">Tentang</a>
+        <a href="#features" class="nav-link">Fitur</a>
+        <a href="#ecosystem" class="nav-link">Ekosistem</a>
+        <a href="#how-it-works" class="nav-link">Cara Kerja</a>
+        <a href="#pricing" class="nav-link">Biaya</a>
+      </div>
+      <div class="nav-actions">
+        <a href="/login" class="btn-login" id="btnNavLogin">
+          <span class="login-icon">🔐</span> Login
+        </a>
+        <button class="nav-hamburger" id="navHamburger" onclick="toggleMobileNav()">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HERO SECTION ===== -->
+  <section class="hero-section" id="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Integrator v1.0 — Siap Digunakan
+      </div>
+      <h1 class="hero-title">
+        Solusi <span class="gradient-text">API Gateway</span><br>
+        untuk UMKM Indonesia
+      </h1>
+      <p class="hero-subtitle">
+        Hubungkan bisnis UMKM Anda dengan sistem perbankan SmartBank secara aman dan otomatis.
+        Semua transaksi divalidasi, dicatat, dan diproses — tanpa ribet.
+      </p>
+      <div class="hero-buttons">
+        <a href="/login" class="btn btn-primary btn-lg" id="btnHeroLogin">
+          🚀 Mulai Sekarang
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg" id="btnHeroFeatures">
+          📖 Pelajari Lebih Lanjut
+        </a>
+      </div>
+
+      <!-- Hero Stats -->
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-value">🔐</div>
+          <div class="hero-stat-label">Keamanan Berlapis</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">0.5%</div>
+          <div class="hero-stat-label">Fee Terjangkau</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">📊</div>
+          <div class="hero-stat-label">Pencatatan Otomatis</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating Cards -->
+    <div class="hero-visual">
+      <div class="floating-card card-1">
+        <div class="fc-icon">🔐</div>
+        <div class="fc-text">JWT Terverifikasi</div>
+      </div>
+      <div class="floating-card card-2">
+        <div class="fc-icon">💰</div>
+        <div class="fc-text">Fee Dihitung</div>
+      </div>
+      <div class="floating-card card-3">
+        <div class="fc-icon">🏦</div>
+        <div class="fc-text">SmartBank Terhubung</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== APA ITU API GATEWAY ===== -->
+  <section class="about-section" id="about">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">TENTANG KAMI</span>
+        <h2 class="section-title">Apa itu <span class="gradient-text">API Gateway?</span></h2>
+      </div>
+      <div class="about-grid">
+        <div class="about-main">
+          <p class="about-text">Bayangkan Anda ingin mengirim uang dari toko online ke bank. <strong>API Gateway</strong> adalah "pintu gerbang" yang memastikan proses ini berjalan <strong>aman, tercatat, dan sampai ke tujuan</strong>.</p>
+          <p class="about-text">Tanpa gateway, setiap aplikasi harus berkomunikasi langsung dengan bank — ini rumit dan rawan kesalahan. Dengan Gateway UMKM, semua menjadi <strong>terpusat, aman, dan otomatis</strong>.</p>
+          <div class="about-highlights">
+            <div class="about-highlight">
+              <span class="ah-icon">🛡️</span>
+              <div>
+                <strong>Penjaga Keamanan</strong>
+                <p>Memverifikasi setiap request dengan token digital agar tidak ada pihak yang tidak berwenang</p>
+              </div>
+            </div>
+            <div class="about-highlight">
+              <span class="ah-icon">📝</span>
+              <div>
+                <strong>Pencatat Aktivitas</strong>
+                <p>Semua transaksi dicatat otomatis ke cloud untuk audit dan monitoring</p>
+              </div>
+            </div>
+            <div class="about-highlight">
+              <span class="ah-icon">🔀</span>
+              <div>
+                <strong>Penghubung Aplikasi</strong>
+                <p>Meneruskan transaksi dari aplikasi UMKM ke SmartBank secara otomatis</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="about-usecase">
+          <div class="usecase-card">
+            <div class="usecase-title">💡 Contoh Penggunaan Nyata</div>
+            <div class="usecase-step"><span class="us-num">1</span> Pelanggan checkout di <strong>Marketplace PasarKita</strong></div>
+            <div class="usecase-arrow">↓</div>
+            <div class="usecase-step"><span class="us-num">2</span> Request dikirim ke <strong>Gateway UMKM</strong></div>
+            <div class="usecase-arrow">↓</div>
+            <div class="usecase-step"><span class="us-num">3</span> Gateway <strong>memvalidasi, mencatat, dan menghitung fee</strong></div>
+            <div class="usecase-arrow">↓</div>
+            <div class="usecase-step"><span class="us-num">4</span> Transaksi diteruskan ke <strong>SmartBank</strong> untuk diproses</div>
+            <div class="usecase-arrow">↓</div>
+            <div class="usecase-step"><span class="us-num">5</span> Hasil pembayaran dikembalikan ke <strong>pelanggan</strong> ✅</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURES SECTION ===== -->
+  <section class="features-section" id="features">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">FITUR UNGGULAN</span>
+        <h2 class="section-title">Semua yang Anda Butuhkan<br><span class="gradient-text">dalam Satu Platform</span></h2>
+        <p class="section-subtitle">Gateway UMKM menyediakan layanan integrasi lengkap untuk menghubungkan bisnis Anda dengan sistem perbankan.</p>
+      </div>
+
+      <div class="features-grid">
+        <div class="feature-card" id="featureAuth">
+          <div class="feature-icon-wrap blue">
+            <span>🛡️</span>
+          </div>
+          <h3>Keamanan Berlapis</h3>
+          <p>Setiap transaksi diverifikasi menggunakan token keamanan digital (JWT HS256). Hanya pengguna terverifikasi yang bisa bertransaksi.</p>
+        </div>
+
+        <div class="feature-card" id="featureLog">
+          <div class="feature-icon-wrap purple">
+            <span>📊</span>
+          </div>
+          <h3>Pencatatan Otomatis ke Cloud</h3>
+          <p>Semua aktivitas transaksi dicatat otomatis di database cloud (MongoDB Atlas). Cocok untuk keperluan audit dan monitoring kapan saja.</p>
+        </div>
+
+        <div class="feature-card" id="featureFee">
+          <div class="feature-icon-wrap emerald">
+            <span>💰</span>
+          </div>
+          <h3>Biaya Layanan Transparan</h3>
+          <p>Biaya gateway hanya 0.5% per transaksi — sangat terjangkau untuk UMKM. Tidak ada biaya tersembunyi, semua terlihat jelas.</p>
+        </div>
+
+        <div class="feature-card" id="featureRoute">
+          <div class="feature-icon-wrap amber">
+            <span>🏦</span>
+          </div>
+          <h3>Terhubung ke SmartBank</h3>
+          <p>Transaksi Anda diteruskan secara otomatis ke SmartBank untuk diproses (debit/kredit saldo), tanpa perlu koneksi manual.</p>
+        </div>
+
+        <div class="feature-card" id="featureApi">
+          <div class="feature-icon-wrap cyan">
+            <span>⚡</span>
+          </div>
+          <h3>Integrasi Mudah</h3>
+          <p>Tersedia endpoint API standar yang bisa langsung digunakan oleh aplikasi lain. Dokumentasi lengkap di dashboard Anda.</p>
+        </div>
+
+        <div class="feature-card" id="featureDashboard">
+          <div class="feature-icon-wrap rose">
+            <span>📱</span>
+          </div>
+          <h3>Dashboard Interaktif</h3>
+          <p>Kelola transaksi, buat token keamanan, hitung biaya layanan, dan lihat dokumentasi — semua dari satu dashboard modern.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOW IT WORKS ===== -->
+  <section class="how-section" id="how-it-works">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">CARA KERJA</span>
+        <h2 class="section-title">Proses Sederhana,<br><span class="gradient-text">Hasil Maksimal</span></h2>
+        <p class="section-subtitle">Hanya dengan beberapa langkah, transaksi Anda diproses secara aman dan cepat.</p>
+      </div>
+
+      <div class="steps-timeline">
+        <div class="step-item">
+          <div class="step-number">01</div>
+          <div class="step-content">
+            <h3>Generate Token</h3>
+            <p>Buat token JWT melalui dashboard. Token ini berlaku selama 30 menit untuk autentikasi transaksi Anda.</p>
+          </div>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step-item">
+          <div class="step-number">02</div>
+          <div class="step-content">
+            <h3>Kirim Transaksi</h3>
+            <p>Masukkan detail transaksi beserta token JWT. Gateway akan memvalidasi dan memproses permintaan Anda.</p>
+          </div>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step-item">
+          <div class="step-number">03</div>
+          <div class="step-content">
+            <h3>Validasi & Logging</h3>
+            <p>Sistem memverifikasi token, mencatat log ke MongoDB Atlas, dan menghitung biaya layanan secara otomatis.</p>
+          </div>
+        </div>
+
+        <div class="step-connector"></div>
+
+        <div class="step-item">
+          <div class="step-number">04</div>
+          <div class="step-content">
+            <h3>Routing & Respons</h3>
+            <p>Transaksi diteruskan ke SmartBank dan hasilnya dikembalikan kepada Anda secara real-time.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EKOSISTEM UMKM ===== -->
+  <section class="ecosystem-section" id="ecosystem">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">EKOSISTEM UMKM</span>
+        <h2 class="section-title">7 Aplikasi, <span class="gradient-text">Satu Ekosistem Terhubung</span></h2>
+        <p class="section-subtitle">Gateway UMKM menjadi penghubung utama antar seluruh aplikasi dalam ekosistem ekonomi UMKM. Semua komunikasi wajib melewati gateway.</p>
+      </div>
+
+      <div class="eco-diagram">
+        <div class="eco-row eco-row-top">
+          <div class="eco-app" id="ecoMarketplace"><span>🛒</span><strong>Marketplace</strong><small>PasarKita</small></div>
+          <div class="eco-app" id="ecoPOS"><span>🏪</span><strong>POS</strong><small>WarungPOS</small></div>
+          <div class="eco-app" id="ecoSupplier"><span>📦</span><strong>SupplierHub</strong><small>Bahan Baku</small></div>
+        </div>
+        <div class="eco-arrows">↓ &nbsp;&nbsp;&nbsp; ↓ &nbsp;&nbsp;&nbsp; ↓</div>
+        <div class="eco-gateway">
+          <div class="eco-gateway-inner">
+            <span>⚡</span>
+            <strong>API Gateway / Integrator</strong>
+            <small>Routing • Validasi • Logging • Fee 0.5%</small>
+          </div>
+        </div>
+        <div class="eco-arrows">↓</div>
+        <div class="eco-row eco-row-bottom">
+          <div class="eco-app eco-bank" id="ecoSmartBank"><span>🏦</span><strong>SmartBank</strong><small>Core Banking</small></div>
+        </div>
+        <div class="eco-arrows">↗ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ↖</div>
+        <div class="eco-row eco-row-extra">
+          <div class="eco-app" id="ecoLogistik"><span>🚚</span><strong>LogistiKita</strong><small>Pengiriman</small></div>
+          <div class="eco-app" id="ecoInsight"><span>📈</span><strong>UMKM Insight</strong><small>Analytics</small></div>
+        </div>
+      </div>
+
+      <div class="eco-note">
+        <span>ℹ️</span>
+        <p><strong>Aturan Penting:</strong> Semua komunikasi antar aplikasi <em>wajib</em> melalui API Gateway untuk menjamin keamanan, konsistensi, dan pencatatan transaksi. SmartBank adalah satu-satunya sistem yang boleh mengubah saldo.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PRICING / FEE SECTION ===== -->
+  <section class="pricing-section" id="pricing">
+    <div class="section-container">
+      <div class="section-header">
+        <span class="section-badge">BIAYA LAYANAN</span>
+        <h2 class="section-title">Transparan &<br><span class="gradient-text">Tanpa Biaya Tersembunyi</span></h2>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-header">
+          <span class="pricing-label">GATEWAY FEE</span>
+          <div class="pricing-value">
+            <span class="pricing-number">0.5</span>
+            <span class="pricing-percent">%</span>
+          </div>
+          <p class="pricing-desc">per transaksi</p>
+        </div>
+        <div class="pricing-features">
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Autentikasi JWT HS256</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Logging ke MongoDB Atlas</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Routing otomatis ke SmartBank</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Dashboard interaktif</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Dokumentasi API lengkap</span>
+          </div>
+          <div class="pricing-feature">
+            <span class="check-icon">✅</span>
+            <span>Kalkulator fee real-time</span>
+          </div>
+        </div>
+        <a href="/login" class="btn btn-primary btn-lg btn-full" id="btnPricingLogin">🚀 Mulai Sekarang</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="landing-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <div class="brand-icon">⚡</div>
+        <span>Gateway UMKM</span>
+      </div>
+      <p class="footer-text">API Gateway / Integrator untuk UMKM Indonesia.<br>Tugas Besar Mata Kuliah RPL 2 — Kelompok 7 (Integrator)</p>
+      <div class="footer-divider"></div>
+      <p class="footer-copyright">© 2026 Gateway UMKM. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.getElementById('landingNavbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+
+    // Mobile nav toggle
+    function toggleMobileNav() {
+      document.getElementById('navLinks').classList.toggle('open');
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // Close mobile nav
+          document.getElementById('navLinks').classList.remove('open');
+        }
+      });
+    });
+
+    // Intersection Observer for scroll animations
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-card, .step-item, .pricing-card').forEach(el => {
+      observer.observe(el);
+    });
+
+    // If already logged in, redirect to dashboard
+    if (localStorage.getItem('gateway_logged_in') === 'true') {
+      // User already logged in, they can stay on landing or go to dashboard
+    }
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="API Gateway UMKM - Interface Konsumen untuk transaksi dan integrasi layanan UMKM">
+  <title>API Gateway UMKM — Integrator</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+  <!-- Background Animation -->
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Mobile Toggle -->
+  <button class="mobile-toggle" id="mobileToggle" onclick="toggleSidebar()">☰</button>
+
+  <div class="app-container">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo">
+        <div class="logo-icon">⚡</div>
+        <div>
+          <h1>Gateway UMKM</h1>
+          <span class="version">Integrator v1.0</span>
+        </div>
+      </div>
+
+      <nav>
+        <div class="nav-section">
+          <div class="nav-section-title">Menu Utama</div>
+          <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+            <span class="nav-icon">📊</span> Dashboard
+          </div>
+          <div class="nav-item" onclick="showPage('token')" id="nav-token">
+            <span class="nav-icon">🔑</span> Generate Token
+          </div>
+          <div class="nav-item" onclick="showPage('transaksi')" id="nav-transaksi">
+            <span class="nav-icon">💸</span> Kirim Transaksi
+          </div>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Informasi</div>
+          <div class="nav-item" onclick="showPage('fee')" id="nav-fee">
+            <span class="nav-icon">💰</span> Kalkulator Fee
+          </div>
+          <div class="nav-item" onclick="showPage('alur')" id="nav-alur">
+            <span class="nav-icon">🔄</span> Alur Sistem
+          </div>
+          <div class="nav-item" onclick="showPage('docs')" id="nav-docs">
+            <span class="nav-icon">📖</span> Dokumentasi API
+          </div>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user" id="sidebarUser">
+          <div class="user-avatar">👤</div>
+          <div class="user-info">
+            <div class="user-name" id="userName">User</div>
+            <div class="user-role">Konsumen</div>
+          </div>
+        </div>
+        <button class="btn btn-outline btn-logout" onclick="logout()" id="btnLogout" title="Logout">
+          🚪 Logout
+        </button>
+        <div class="status-indicator" style="margin-top: 12px;">
+          <div class="status-dot" id="serverDot"></div>
+          <span id="serverStatus">Mengecek server...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="main-content">
+
+      <!-- ========== DASHBOARD ========== -->
+      <section class="page-section active" id="page-dashboard">
+        <div class="page-header">
+          <h2>📊 Dashboard Gateway</h2>
+          <p>Selamat datang di API Gateway / Integrator UMKM</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-icon">⚡</div>
+            <div class="stat-value" id="statEndpoint">2</div>
+            <div class="stat-label">Endpoint Aktif</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon">🔐</div>
+            <div class="stat-value">JWT HS256</div>
+            <div class="stat-label">Algoritma Keamanan</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">0.5%</div>
+            <div class="stat-label">Fee Gateway</div>
+          </div>
+          <div class="stat-card rose">
+            <div class="stat-icon">🏦</div>
+            <div class="stat-value">SmartBank</div>
+            <div class="stat-label">Target Routing</div>
+          </div>
+        </div>
+
+        <!-- Flow Diagram -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🔄</span> Alur Request Gateway</div>
+          </div>
+          <div class="flow-container">
+            <div class="flow-step">
+              <div class="step-icon">👤</div>
+              <div class="step-label">Konsumen</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="step-icon">🔑</div>
+              <div class="step-label">Validasi JWT</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="step-icon">📝</div>
+              <div class="step-label">Logging</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="step-icon">💰</div>
+              <div class="step-label">Hitung Fee</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step">
+              <div class="step-icon">🏦</div>
+              <div class="step-label">SmartBank</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">⚡</span> Aksi Cepat</div>
+          </div>
+          <div class="form-row">
+            <button class="btn btn-primary" onclick="showPage('token')" id="btnQuickToken">🔑 Generate Token</button>
+            <button class="btn btn-success" onclick="showPage('transaksi')" id="btnQuickTransaksi">💸 Kirim
+              Transaksi</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== GENERATE TOKEN ========== -->
+      <section class="page-section" id="page-token">
+        <div class="page-header">
+          <h2>🔑 Generate Token JWT</h2>
+          <p>Buat token otentikasi untuk mengakses API Gateway</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">👤</span> Identitas Pengguna</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="tokenUserId">User ID</label>
+            <input type="text" class="form-input" id="tokenUserId" placeholder="Masukkan User ID, contoh: konsumen_001">
+          </div>
+
+          <button class="btn btn-primary" onclick="generateToken()" id="btnGenerateToken">
+            🔑 Generate Token
+          </button>
+
+          <div id="tokenResult" style="display:none;">
+            <div class="token-display" style="margin-top: 20px;">
+              <code id="tokenValue"></code>
+              <button class="copy-btn" onclick="copyToken()" title="Salin Token">📋</button>
+            </div>
+            <p style="margin-top: 10px; font-size: 13px; color: var(--text-muted);">
+              ⏱️ Token berlaku selama 30 menit. Gunakan token ini untuk autentikasi transaksi.
+            </p>
+          </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">ℹ️</span> Tentang JWT Token</div>
+          </div>
+          <table class="data-table">
+            <tbody>
+              <tr>
+                <td><strong>Algoritma</strong></td>
+                <td>HS256 (HMAC SHA-256)</td>
+              </tr>
+              <tr>
+                <td><strong>Masa Berlaku</strong></td>
+                <td>30 menit sejak dibuat</td>
+              </tr>
+              <tr>
+                <td><strong>Payload</strong></td>
+                <td>user_id, exp (expiration)</td>
+              </tr>
+              <tr>
+                <td><strong>Kegunaan</strong></td>
+                <td>Autentikasi request ke API Gateway</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========== KIRIM TRANSAKSI ========== -->
+      <section class="page-section" id="page-transaksi">
+        <div class="page-header">
+          <h2>💸 Kirim Transaksi</h2>
+          <p>Kirim request transaksi melalui API Gateway ke SmartBank</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📝</span> Form Transaksi</div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="txUserId">User ID</label>
+              <input type="text" class="form-input" id="txUserId" placeholder="konsumen_001">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="txAmount">Jumlah (Rp)</label>
+              <input type="number" class="form-input" id="txAmount" placeholder="100000" min="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="txToken">Token JWT</label>
+            <input type="text" class="form-input" id="txToken" placeholder="Tempel token JWT di sini...">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="txMetadata">Metadata Tambahan (JSON, opsional)</label>
+            <textarea class="form-input" id="txMetadata" placeholder='{"keterangan": "Pembayaran produk"}'></textarea>
+          </div>
+
+          <div id="txFeePreview" style="display:none;">
+            <div class="fee-display">
+              <span class="fee-label">Estimasi Fee Gateway (0.5%)</span>
+              <span class="fee-value" id="txFeeValue">Rp 0</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 20px; display: flex; gap: 12px;">
+            <button class="btn btn-success" onclick="kirimTransaksi()" id="btnKirimTransaksi">
+              🚀 Kirim Transaksi
+            </button>
+            <button class="btn btn-outline" onclick="resetForm()" id="btnResetForm">🔄 Reset</button>
+          </div>
+        </div>
+
+        <!-- Response -->
+        <div class="glass-card" id="txResponseCard" style="display:none;">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📨</span> Respons Server</div>
+          </div>
+          <div class="response-panel">
+            <div class="response-header">
+              <div class="response-status" id="txResponseStatus">
+                <span>⏳</span> Menunggu...
+              </div>
+              <span style="font-size: 12px; color: var(--text-muted);" id="txResponseTime"></span>
+            </div>
+            <div class="response-body" id="txResponseBody">-</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== KALKULATOR FEE ========== -->
+      <section class="page-section" id="page-fee">
+        <div class="page-header">
+          <h2>💰 Kalkulator Fee Gateway</h2>
+          <p>Hitung biaya layanan gateway untuk setiap transaksi</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🧮</span> Hitung Fee</div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="feeAmount">Jumlah Transaksi (Rp)</label>
+            <input type="number" class="form-input" id="feeAmount" placeholder="Masukkan jumlah, contoh: 1000000"
+              min="0" oninput="hitungFeePreview()">
+          </div>
+
+          <div class="fee-display">
+            <div>
+              <div class="fee-label">Fee Gateway (0.5%)</div>
+              <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Dipotong otomatis dari setiap
+                transaksi</div>
+            </div>
+            <div class="fee-value" id="feeResult">Rp 0</div>
+          </div>
+
+          <div style="margin-top: 16px;">
+            <div class="fee-display"
+              style="background: rgba(16, 185, 129, 0.06); border-color: rgba(16, 185, 129, 0.15);">
+              <span class="fee-label">Total yang Diteruskan ke SmartBank</span>
+              <span class="fee-value" id="feeNet" style="color: var(--accent-emerald);">Rp 0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📋</span> Tabel Simulasi Fee</div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Jumlah Transaksi</th>
+                <th>Fee (0.5%)</th>
+                <th>Diteruskan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Rp 50.000</td>
+                <td>Rp 250</td>
+                <td>Rp 49.750</td>
+              </tr>
+              <tr>
+                <td>Rp 100.000</td>
+                <td>Rp 500</td>
+                <td>Rp 99.500</td>
+              </tr>
+              <tr>
+                <td>Rp 500.000</td>
+                <td>Rp 2.500</td>
+                <td>Rp 497.500</td>
+              </tr>
+              <tr>
+                <td>Rp 1.000.000</td>
+                <td>Rp 5.000</td>
+                <td>Rp 995.000</td>
+              </tr>
+              <tr>
+                <td>Rp 5.000.000</td>
+                <td>Rp 25.000</td>
+                <td>Rp 4.975.000</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ========== ALUR SISTEM ========== -->
+      <section class="page-section" id="page-alur">
+        <div class="page-header">
+          <h2>🔄 Alur Kerja Sistem</h2>
+          <p>Bagaimana request diproses di API Gateway</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📋</span> Step-by-Step Proses</div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="flow-step"
+              style="flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 16px;">
+              <div class="step-icon">1️⃣</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Validasi Request (JWT)</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Token JWT diperiksa keasliannya menggunakan
+                  algoritma HS256. Jika kadaluarsa atau palsu, request ditolak.</div>
+              </div>
+            </div>
+
+            <div class="flow-step"
+              style="flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 16px;">
+              <div class="step-icon">2️⃣</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Logging ke MongoDB Atlas</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Setiap request yang masuk dicatat di database
+                  cloud MongoDB Atlas untuk keperluan audit dan monitoring.</div>
+              </div>
+            </div>
+
+            <div class="flow-step"
+              style="flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 16px;">
+              <div class="step-icon">3️⃣</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Hitung Biaya Layanan (Fee 0.5%)</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Gateway menghitung fee 0.5% dari jumlah
+                  transaksi sebagai biaya layanan integrasi.</div>
+              </div>
+            </div>
+
+            <div class="flow-step"
+              style="flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 16px;">
+              <div class="step-icon">4️⃣</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Routing ke SmartBank</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Data transaksi diteruskan ke SmartBank melalui
+                  HTTP POST untuk diproses (debit/kredit saldo).</div>
+              </div>
+            </div>
+
+            <div class="flow-step"
+              style="flex-direction: row; min-width: 100%; justify-content: flex-start; gap: 16px;">
+              <div class="step-icon">5️⃣</div>
+              <div>
+                <div style="font-weight: 600; margin-bottom: 4px;">Respons ke Konsumen</div>
+                <div style="font-size: 13px; color: var(--text-muted);">Hasil dari SmartBank dikembalikan ke konsumen
+                  beserta info fee dan catatan integrator.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== DOKUMENTASI ========== -->
+      <section class="page-section" id="page-docs">
+        <div class="page-header">
+          <h2>📖 Dokumentasi API</h2>
+          <p>Referensi endpoint yang tersedia di API Gateway</p>
+        </div>
+
+        <!-- Endpoint 1 -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="badge badge-success">GET</span>
+              /generate_token_tester/{user_id}
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Generate token JWT untuk testing. Token berlaku
+            30 menit.</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Tipe</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>user_id</td>
+                <td><span class="badge badge-info">string</span></td>
+                <td>ID pengguna (path parameter)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="response-panel" style="margin-top: 16px;">
+            <div class="response-header">
+              <div class="response-status success">✅ Response 200</div>
+            </div>
+            <div class="response-body">{ "token_buat_ngetes": "eyJhbGciOiJIUzI1NiIs..." }</div>
+          </div>
+        </div>
+
+        <!-- Endpoint 2 -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="badge badge-error">POST</span>
+              /integrator/routing_api
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Kirim transaksi melalui gateway. Request akan
+            divalidasi, di-log, dihitung fee-nya, lalu diteruskan ke SmartBank.</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Tipe</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>user_id</td>
+                <td><span class="badge badge-info">string</span></td>
+                <td>ID pengguna</td>
+              </tr>
+              <tr>
+                <td>parameter.token</td>
+                <td><span class="badge badge-info">string</span></td>
+                <td>Token JWT untuk autentikasi</td>
+              </tr>
+              <tr>
+                <td>parameter.amount</td>
+                <td><span class="badge badge-info">number</span></td>
+                <td>Jumlah transaksi</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="response-panel" style="margin-top: 16px;">
+            <div class="response-header">
+              <div class="response-status success">✅ Response Sukses</div>
+            </div>
+            <div class="response-body">{
+              "status": "sukses",
+              "data": {
+              "integrator_note": "Request divalidasi & log tersimpan di Atlas",
+              "fee_diambil": 500.0,
+              "respons_dari_smartbank": { ... }
+              }
+              }</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/static/script.js"></script>
+</body>
+
+</html>
