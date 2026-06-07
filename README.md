@@ -297,7 +297,6 @@ ALGORITHM = "HS256"
 ### MongoDB Connection
 File: `services/log_service.py`
 ```python
-MONGO_DETAILS = "mongodb+srv://username:password@cluster.mongodb.net/?appName=Cluster0"
 database = client.TugasGateway  # Nama database
 log_collection = database.get_collection("logs_transaksi")  # Nama collection
 ```
