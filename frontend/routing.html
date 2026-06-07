@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Routing Test - API Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+    .tool-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tool-note {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .kbd-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .helper-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .mini-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .mini-box strong {
+      color: var(--text-primary);
+      display: block;
+      margin-bottom: 4px;
+    }
+    @media (max-width: 860px) {
+      .form-row,
+      .helper-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <main class="tool-shell">
+    <header class="page-header">
+      <h2>🔀 Routing Test</h2>
+      <p>Uji alur transaksi dari gateway ke SmartBank dengan validasi paket, token, fee, dan quota.</p>
+    </header>
+
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
+      <a class="btn btn-outline" href="/apps/manage">🧩 Apps Management</a>
+      <a class="btn btn-outline" href="/monitor/request-stats">📈 Request Stats JSON</a>
+    </div>
+
+    <section class="glass-card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">💸</span> Test Routing Transaksi</div>
+      </div>
+      <p class="tool-note">Isi semua field, lalu klik <span class="kbd-pill">Send Transaction</span>. Jika paket masih Starter, request routing akan ditolak.</p>
+
+      <div class="form-group">
+        <label class="form-label" for="api_key">API Key</label>
+        <input class="form-input" id="api_key" placeholder="contoh: mya_xxxxxxxxx" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="token">Token (JWT)</label>
+        <input class="form-input" id="token" placeholder="tempel token JWT di sini" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="amount">Amount</label>
+          <input class="form-input" id="amount" type="number" value="10000" min="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="source_app">Source App</label>
+          <input class="form-input" id="source_app" value="MyApp" />
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button class="btn btn-success" id="btn_send">🚀 Send Transaction</button>
+        <a class="btn btn-outline" href="/generate_token_tester/alfa">🔑 Generate Token Cepat</a>
+      </div>
+
+      <div class="helper-grid">
+        <div class="mini-box">
+          <strong>Rule Paket</strong>
+          Starter tidak bisa routing. Gunakan Basic/Pro/Enterprise.
+        </div>
+        <div class="mini-box">
+          <strong>Rule Token</strong>
+          Token berlaku 30 menit. Token kadaluarsa akan ditolak.
+        </div>
+        <div class="mini-box">
+          <strong>Rule Fee</strong>
+          Fee diambil dari paket app yang aktif.
+        </div>
+      </div>
+
+      <div class="response-panel" style="margin-top: 18px;">
+        <div class="response-header">
+          <div class="response-status" id="route_status"><span>ℹ️</span> Response Routing</div>
+        </div>
+        <div class="response-body" id="resp">-</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    configureBackLink('nav_back')
+    const statusEl = document.getElementById('route_status')
+    const respEl = document.getElementById('resp')
+
+    function setPending(text) {
+      statusEl.className = 'response-status pending'
+      statusEl.innerHTML = '<span>⏳</span> ' + text
+    }
+
+    function setSuccess(text) {
+      statusEl.className = 'response-status success'
+      statusEl.innerHTML = '<span>✅</span> ' + text
+    }
+
+    function setError(text) {
+      statusEl.className = 'response-status error'
+      statusEl.innerHTML = '<span>❌</span> ' + text
+    }
+
+    document.getElementById('btn_send').addEventListener('click', async () => {
+      const api_key = document.getElementById('api_key').value.trim()
+      const token = document.getElementById('token').value.trim()
+      const amount = Number(document.getElementById('amount').value || 0)
+      const source_app = document.getElementById('source_app').value.trim() || 'web'
+
+      if (!api_key || !token || amount <= 0) {
+        setError('api_key, token, dan amount wajib valid')
+        respEl.textContent = '{"pesan":"api_key, token, dan amount wajib valid"}'
+        return
+      }
+
+      setPending('Mengirim transaksi ke gateway...')
+      respEl.textContent = 'Loading...'
+
+      const payload = {
+        user_id: 'web',
+        parameter: { api_key, token, amount, source_app }
+      }
+
+      try {
+        const res = await fetch('/integrator/routing_api', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        const data = await res.json()
+        respEl.textContent = JSON.stringify(data, null, 2)
+
+        if (data && data.status === 'sukses') {
+          setSuccess('Routing berhasil')
+        } else {
+          setError('Routing ditolak atau gagal')
+        }
+      } catch (e) {
+        setError('Gagal konek ke server')
+        respEl.textContent = 'Error: ' + e
+      }
+    })
+  </script>
+</body>
+</html>

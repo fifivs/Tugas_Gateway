@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>API Monitor - Ekosistem UMKM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1524;
+    --card: #131929;
+    --border: #1e2d4a;
+    --accent: #3b82f6;
+    --accent2: #06d6a0;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header {
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #3b82f6, #06d6a0);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .header-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; }
+  .header-sub { font-size: 12px; color: var(--muted); }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .btn {
+    padding: 8px 16px; border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { background: var(--border); }
+
+  .content { padding: 24px 28px; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 28px; }
+  .stat-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .stat-card.up .stat-value { color: var(--accent2); }
+  .stat-card.down .stat-value { color: var(--danger); }
+  .stat-card.warn .stat-value { color: var(--warn); }
+  .stat-card.info .stat-value { color: var(--accent); }
+
+  /* APPS GRID */
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 16px;
+    margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .apps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+
+  .app-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    transition: all 0.2s;
+  }
+  .app-card:hover { border-color: var(--accent); }
+
+  .app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .app-info { display: flex; align-items: center; gap: 10px; }
+  .app-emoji { font-size: 24px; }
+  .app-name { font-weight: 700; font-size: 14px; }
+  .app-group { font-size: 11px; color: var(--muted); }
+
+  .status-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--muted);
+  }
+  .status-dot.online { background: var(--accent2); animation: pulse 2s infinite; }
+  .status-dot.offline { background: var(--danger); }
+  .status-dot.checking { background: var(--warn); animation: pulse 0.5s infinite; }
+
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  .app-endpoints { display: flex; flex-direction: column; gap: 6px; }
+
+  .endpoint-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 6px;
+    font-size: 11px;
+  }
+  .endpoint-url { font-family: monospace; color: var(--accent); flex: 1; }
+  .endpoint-result {
+    font-size: 10px; font-weight: 600;
+    padding: 2px 8px; border-radius: 10px;
+    min-width: 60px; text-align: center;
+  }
+  .endpoint-result.ok { background: rgba(6,214,160,0.15); color: var(--accent2); }
+  .endpoint-result.fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .endpoint-result.pending { background: rgba(100,116,139,0.2); color: var(--muted); }
+  .endpoint-result.checking { background: rgba(245,158,11,0.15); color: var(--warn); }
+
+  .app-footer { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .check-btn {
+    width: 100%; padding: 8px; border-radius: 8px;
+    background: transparent; border: 1px solid var(--border);
+    color: var(--text); font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+    transition: all 0.2s;
+  }
+  .check-btn:hover { background: var(--accent); border-color: var(--accent); }
+
+  /* LOG TABLE */
+  .log-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .log-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { padding: 10px 16px; text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: var(--bg2); }
+  td { padding: 10px 16px; border-bottom: 1px solid rgba(30,45,74,0.4); }
+  tr:hover td { background: rgba(59,130,246,0.03); }
+
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge-ok { background: rgba(6,214,160,0.15); color: var(--accent2); }
+  .badge-fail { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+
+  .method { font-family: monospace; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; }
+  .method-get { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .method-post { background: rgba(6,214,160,0.15); color: var(--accent2); }
+
+  .loading-spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .last-check { font-size: 11px; color: var(--muted); }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab-btn {
+    padding: 10px 18px; border: none; background: transparent;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: all 0.2s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* DB STATS */
+  .db-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-bottom: 20px; }
+  .db-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .db-card-title {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px;
+    margin-bottom: 16px; display: flex; align-items: center; gap: 8px;
+    color: var(--accent);
+  }
+  .db-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-bottom: 1px solid rgba(30,45,74,0.4);
+    font-size: 12px;
+  }
+  .db-row:last-child { border-bottom: none; }
+  .db-key { color: var(--muted); }
+  .db-val { font-weight: 600; font-family: monospace; }
+  .db-val.green { color: var(--accent2); }
+  .db-val.red { color: var(--danger); }
+  .db-val.blue { color: var(--accent); }
+  .db-val.yellow { color: var(--warn); }
+
+  .refresh-btn {
+    background: transparent; border: 1px solid var(--border);
+    color: var(--muted); padding: 5px 12px; border-radius: 6px;
+    font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s;
+  }
+  .refresh-btn:hover { background: var(--border); color: var(--text); }
+
+  .db-empty { text-align: center; color: var(--muted); padding: 30px; font-size: 12px; }
+  .db-list { max-height: 320px; overflow-y: auto; }
+  .db-item {
+    padding: 10px 12px; border-bottom: 1px solid rgba(30,45,74,0.3);
+    font-size: 11px;
+  }
+  .db-item:last-child { border-bottom: none; }
+  .db-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .db-item-app { font-weight: 700; font-size: 12px; }
+  .db-item-time { color: var(--muted); }
+  .db-item-detail { color: var(--muted); font-family: monospace; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <div class="header-icon">📡</div>
+    <div>
+      <div class="header-title">API Monitor — Ekosistem UMKM</div>
+      <div class="header-sub">Monitor status semua API yang terhubung ke Gateway</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="last-check" id="lastCheck">Belum dicek</span>
+    <button class="btn btn-primary" onclick="checkAll()">
+      🔄 Cek Semua API
+    </button>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card up">
+      <div class="stat-label">API Online</div>
+      <div class="stat-value" id="statOnline">-</div>
+      <div class="stat-sub">dari total aplikasi</div>
+    </div>
+    <div class="stat-card down">
+      <div class="stat-label">API Offline</div>
+      <div class="stat-value" id="statOffline">-</div>
+      <div class="stat-sub">perlu perhatian</div>
+    </div>
+    <div class="stat-card info">
+      <div class="stat-label">Gateway</div>
+      <div class="stat-value" id="statGateway">-</div>
+      <div class="stat-sub">API Gateway status</div>
+    </div>
+    <div class="stat-card warn">
+      <div class="stat-label">Avg Response</div>
+      <div class="stat-value" id="statAvg">-</div>
+      <div class="stat-sub">milliseconds</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('monitor', this)">📡 Status Monitor</button>
+    <button class="tab-btn" onclick="switchTab('database', this)">🗄️ Database MongoDB</button>
+  </div>
+
+  <!-- TAB: MONITOR -->
+  <div class="tab-panel active" id="tab-monitor">
+
+    <!-- APPS -->
+    <div class="section-title">🏢 Status Semua Aplikasi</div>
+    <div class="apps-grid" id="appsGrid"></div>
+
+    <!-- LOG -->
+    <div class="section-title">📋 Log Pengecekan</div>
+    <div class="log-card">
+      <div class="log-header">
+        <span style="font-weight:600; font-size:14px">History Check</span>
+        <button class="btn btn-ghost" style="font-size:12px; padding:6px 12px" onclick="clearLog()">🗑️ Clear</button>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu</th><th>Aplikasi</th><th>Endpoint</th>
+            <th>Method</th><th>Status</th><th>Response Time</th>
+          </tr>
+        </thead>
+        <tbody id="logTable">
+          <tr>
+            <td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">
+              Klik "Cek Semua API" untuk mulai monitoring
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div><!-- /tab-monitor -->
+
+  <!-- TAB: DATABASE -->
+  <div class="tab-panel" id="tab-database">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+      <div class="section-title" style="margin-bottom:0">🗄️ Data MongoDB Atlas</div>
+      <button class="refresh-btn" onclick="loadDbStats()">🔄 Refresh Data</button>
+    </div>
+
+    <div class="db-grid">
+      <div class="db-card">
+        <div class="db-card-title">📊 Statistik Request Gateway</div>
+        <div id="dbRequestStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MongoDB</div></div>
+      </div>
+      <div class="db-card">
+        <div class="db-card-title">💰 Ringkasan Fee &amp; Transaksi</div>
+        <div id="dbFeeStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MongoDB</div></div>
+      </div>
+    </div>
+
+    <div class="log-card">
+      <div class="log-header">
+        <span style="font-weight:600; font-size:14px">📝 Health Log — MongoDB (api_health_log)</span>
+        <span id="dbHealthCount" style="font-size:12px; color:var(--muted)"></span>
+      </div>
+      <div class="db-list" id="dbHealthList">
+        <div class="db-empty">Klik Refresh Data untuk memuat log dari MongoDB</div>
+      </div>
+    </div>
+
+    <div class="log-card" style="margin-top:14px;">
+      <div class="log-header">
+        <span style="font-weight:600; font-size:14px">🔀 Request Log — MongoDB (api_request_log)</span>
+        <span id="dbReqCount" style="font-size:12px; color:var(--muted)"></span>
+      </div>
+      <div class="db-list" id="dbRequestList">
+        <div class="db-empty">Klik Refresh Data untuk memuat log dari MongoDB</div>
+      </div>
+    </div>
+  </div><!-- /tab-database -->
+
+</div>
+
+<script>
+const GATEWAY = 'http://127.0.0.1:8000';
+let logs = [];
+let checkResults = {};
+
+const apps = [
+  {
+    id: 'gateway',
+    name: 'API Gateway',
+    group: 'Kelompok 7',
+    emoji: '⚡',
+    baseUrl: GATEWAY,
+    endpoints: [
+      { method: 'GET', path: '/generate_token_tester/test_user', label: 'Generate Token' },
+      { method: 'POST', path: '/integrator/validasi_request', label: 'Validasi Request', body: { user_id: 'test', parameter: { token: 'test' } } },
+      { method: 'POST', path: '/integrator/biaya_layanan_integrasi', label: 'Biaya Layanan', body: { user_id: 'test', parameter: { amount: 100000 } } },
+    ]
+  },
+  {
+    id: 'smartbank',
+    name: 'SmartBank',
+    group: 'Kelompok 1',
+    emoji: '🏦',
+    baseUrl: 'http://127.0.0.1:8001',
+    endpoints: [
+      { method: 'POST', path: '/smartbank/pembayaran_transaksi', label: 'Pembayaran', body: { user_id: 'test', parameter: {} } },
+      { method: 'POST', path: '/smartbank/manajemen_saldo', label: 'Cek Saldo', body: { user_id: 'test', parameter: {} } },
+    ]
+  },
+  {
+    id: 'marketplace',
+    name: 'Marketplace',
+    group: 'Kelompok 2',
+    emoji: '🛍️',
+    baseUrl: 'http://127.0.0.1:8002',
+    endpoints: [
+      { method: 'POST', path: '/marketplace/browse_produk', label: 'Browse Produk', body: { user_id: 'test', parameter: {} } },
+      { method: 'POST', path: '/marketplace/checkout', label: 'Checkout', body: { user_id: 'test', parameter: {} } },
+    ]
+  },
+  {
+    id: 'pos',
+    name: 'POS (WarungPOS)',
+    group: 'Kelompok 3',
+    emoji: '🏪',
+    baseUrl: 'http://127.0.0.1:8003',
+    endpoints: [
+      { method: 'POST', path: '/pos/input_transaksi', label: 'Input Transaksi', body: { user_id: 'test', parameter: {} } },
+      { method: 'POST', path: '/pos/pembayaran', label: 'Pembayaran', body: { user_id: 'test', parameter: {} } },
+    ]
+  },
+  {
+    id: 'supplier',
+    name: 'SupplierHub',
+    group: 'Kelompok 4',
+    emoji: '📦',
+    baseUrl: 'http://127.0.0.1:8004',
+    endpoints: [
+      { method: 'POST', path: '/supplierhub/order_bahan', label: 'Order Bahan', body: { user_id: 'test', parameter: {} } },
+      { method: 'POST', path: '/supplierhub/konfirmasi_stok', label: 'Konfirmasi Stok', body: { user_id: 'test', parameter: {} } },
+    ]
+  },
+  {
+    id: 'logistik',
+    name: 'LogistiKita',
+    group: 'Kelompok 5',
+    emoji: '🚚',
+    baseUrl: 'http://127.0.0.1:8005',
+    endpoints: [
+      { method: 'POST', path: '/logistikita/request_pengiriman', label: 'Request Kirim', body: { user_id: 'test', parameter: {} } },
+      { method: 'POST', path: '/logistikita/tracking_status', label: 'Tracking', body: { user_id: 'test', parameter: {} } },
+    ]
+  },
+];
+
+function renderApps() {
+  const grid = document.getElementById('appsGrid');
+  grid.innerHTML = apps.map(app => `
+    <div class="app-card" id="app-${app.id}">
+      <div class="app-header">
+        <div class="app-info">
+          <div class="app-emoji">${app.emoji}</div>
+          <div>
+            <div class="app-name">${app.name}</div>
+            <div class="app-group">${app.group} · ${app.baseUrl.split(':')[2]}</div>
+          </div>
+        </div>
+        <div class="status-dot" id="dot-${app.id}"></div>
+      </div>
+      <div class="app-endpoints" id="endpoints-${app.id}">
+        ${app.endpoints.map((ep, i) => `
+          <div class="endpoint-row">
+            <span class="endpoint-url">${ep.method} ${ep.label}</span>
+            <span class="endpoint-result pending" id="ep-${app.id}-${i}">—</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="app-footer">
+        <button class="check-btn" onclick="checkApp('${app.id}')">
+          🔍 Cek ${app.name}
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function checkEndpoint(app, ep, index) {
+  const epEl = document.getElementById(`ep-${app.id}-${index}`);
+  epEl.className = 'endpoint-result checking';
+  epEl.textContent = '...';
+
+  const start = Date.now();
+  try {
+    const opts = {
+      method: ep.method,
+      headers: { 'Content-Type': 'application/json' },
+      signal: AbortSignal.timeout(5000)
+    };
+    if (ep.method === 'POST' && ep.body) {
+      opts.body = JSON.stringify(ep.body);
+    }
+
+    const res = await fetch(app.baseUrl + ep.path, opts);
+    const elapsed = Date.now() - start;
+    const ok = res.status < 500;
+
+    epEl.className = 'endpoint-result ' + (ok ? 'ok' : 'fail');
+    epEl.textContent = res.status + ' · ' + elapsed + 'ms';
+
+    addLog(app.name, ep.path, ep.method, res.status, elapsed, ok);
+    saveHealthToDb(app.name, ep.path, ok ? 'online' : 'offline', elapsed, res.status, null);
+    return { ok, elapsed };
+
+  } catch (e) {
+    const elapsed = Date.now() - start;
+    epEl.className = 'endpoint-result fail';
+    epEl.textContent = 'offline';
+    addLog(app.name, ep.path, ep.method, 'ERR', elapsed, false);
+    saveHealthToDb(app.name, ep.path, 'offline', elapsed, null, e.message || 'Connection refused');
+    return { ok: false, elapsed };
+  }
+}
+
+async function checkApp(appId) {
+  const app = apps.find(a => a.id === appId);
+  if (!app) return;
+
+  const dot = document.getElementById(`dot-${appId}`);
+  dot.className = 'status-dot checking';
+
+  let allOk = true;
+  let totalMs = 0;
+
+  for (let i = 0; i < app.endpoints.length; i++) {
+    const result = await checkEndpoint(app, app.endpoints[i], i);
+    if (!result.ok) allOk = false;
+    totalMs += result.elapsed;
+  }
+
+  dot.className = 'status-dot ' + (allOk ? 'online' : 'offline');
+  checkResults[appId] = allOk;
+  updateStats();
+}
+
+async function checkAll() {
+  const btn = document.querySelector('.btn-primary');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> Mengecek...';
+
+  for (const app of apps) {
+    await checkApp(app.id);
+  }
+
+  document.getElementById('lastCheck').textContent = 'Terakhir: ' + new Date().toLocaleTimeString('id-ID');
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Cek Semua API';
+}
+
+function updateStats() {
+  const results = Object.values(checkResults);
+  const online = results.filter(Boolean).length;
+  const offline = results.filter(r => !r).length;
+
+  document.getElementById('statOnline').textContent = online;
+  document.getElementById('statOffline').textContent = offline;
+  document.getElementById('statGateway').textContent = checkResults['gateway'] ? 'UP' : 'DOWN';
+
+  const allMs = logs.filter(l => l.ms > 0).map(l => l.ms);
+  if (allMs.length > 0) {
+    const avg = Math.round(allMs.reduce((a,b) => a+b, 0) / allMs.length);
+    document.getElementById('statAvg').textContent = avg + 'ms';
+  }
+}
+
+function addLog(app, endpoint, method, status, ms, ok) {
+  const now = new Date().toLocaleTimeString('id-ID');
+  logs.unshift({ time: now, app, endpoint, method, status, ms, ok });
+  if (logs.length > 50) logs.pop();
+  renderLog();
+}
+
+function renderLog() {
+  const tbody = document.getElementById('logTable');
+  if (logs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">Belum ada log</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = logs.map(l => `
+    <tr>
+      <td style="color:var(--muted)">${l.time}</td>
+      <td style="font-weight:600">${l.app}</td>
+      <td style="font-family:monospace; color:var(--accent); font-size:11px">${l.endpoint}</td>
+      <td><span class="method method-${l.method.toLowerCase()}">${l.method}</span></td>
+      <td><span class="badge ${l.ok ? 'badge-ok' : 'badge-fail'}">${l.status}</span></td>
+      <td style="color:var(--muted)">${l.ms}ms</td>
+    </tr>
+  `).join('');
+}
+
+function clearLog() {
+  logs = [];
+  renderLog();
+}
+
+// Init
+renderApps();
+
+// ============================================
+// TAB SWITCHING
+// ============================================
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  if (name === 'database') loadDbStats();
+}
+
+// ============================================
+// SAVE HEALTH CHECK TO MONGODB via Gateway
+// ============================================
+async function saveHealthToDb(appName, endpoint, status, responseTimeMs, statusCode, errorMessage) {
+  try {
+    await fetch(GATEWAY + '/monitor/health-check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: 'api_monitor',
+        parameter: {
+          app_name: appName,
+          endpoint: endpoint,
+          status: status,
+          response_time_ms: responseTimeMs,
+          status_code: statusCode,
+          error_message: errorMessage
+        }
+      }),
+      signal: AbortSignal.timeout(3000)
+    });
+  } catch(e) { /* silently fail */ }
+}
+
+// ============================================
+// LOAD DB STATS FROM GATEWAY
+// ============================================
+async function loadDbStats() {
+  try {
+    const res = await fetch(GATEWAY + '/monitor/request-stats');
+    const json = await res.json();
+    const d = json.data || {};
+
+    const totalReq = d.total_requests ?? '—';
+    const sukses = d.sukses ?? '—';
+    const gagal = d.gagal ?? '—';
+    const successRate = d.total_requests > 0
+      ? Math.round((d.sukses / d.total_requests) * 100) + '%' : '—';
+    const totalFee = d.total_fee != null
+      ? 'Rp ' + Number(d.total_fee).toLocaleString('id-ID') : '—';
+    const avgMs = d.avg_response_ms != null
+      ? Math.round(d.avg_response_ms) + ' ms' : '—';
+
+    document.getElementById('dbRequestStats').innerHTML = `
+      <div class="db-row"><span class="db-key">Total Request</span><span class="db-val blue">${totalReq}</span></div>
+      <div class="db-row"><span class="db-key">Sukses</span><span class="db-val green">${sukses}</span></div>
+      <div class="db-row"><span class="db-key">Gagal</span><span class="db-val red">${gagal}</span></div>
+      <div class="db-row"><span class="db-key">Success Rate</span><span class="db-val green">${successRate}</span></div>
+      <div class="db-row"><span class="db-key">Avg Response Time</span><span class="db-val yellow">${avgMs}</span></div>
+    `;
+    document.getElementById('dbFeeStats').innerHTML = `
+      <div class="db-row"><span class="db-key">Total Fee Dikumpulkan</span><span class="db-val green">${totalFee}</span></div>
+      <div class="db-row"><span class="db-key">Sumber Terbanyak</span><span class="db-val blue">${d.top_source_app ?? '—'}</span></div>
+      <div class="db-row"><span class="db-key">JWT Valid</span><span class="db-val green">${d.jwt_valid_count ?? '—'}</span></div>
+      <div class="db-row"><span class="db-key">JWT Invalid</span><span class="db-val red">${d.jwt_invalid_count ?? '—'}</span></div>
+      <div class="db-row"><span class="db-key">SmartBank Sukses</span><span class="db-val green">${d.smartbank_ok ?? '—'}</span></div>
+    `;
+
+    const reqLogs = d.recent_logs || [];
+    document.getElementById('dbReqCount').textContent = reqLogs.length + ' entri terbaru';
+    document.getElementById('dbRequestList').innerHTML = reqLogs.length === 0
+      ? '<div class="db-empty">Belum ada request log di MongoDB</div>'
+      : reqLogs.map(r => `
+        <div class="db-item">
+          <div class="db-item-header">
+            <span class="db-item-app" style="color:${r.smartbank_status === 'sukses' ? 'var(--accent2)' : 'var(--danger)'}">${r.source_app ?? 'unknown'} &rarr; SmartBank: ${r.smartbank_status ?? '?'}</span>
+            <span class="db-item-time">${r.timestamp ? new Date(r.timestamp).toLocaleString('id-ID') : '—'}</span>
+          </div>
+          <div class="db-item-detail">user: ${r.user_id ?? '—'} &nbsp;|&nbsp; amount: Rp${Number(r.amount ?? 0).toLocaleString('id-ID')} &nbsp;|&nbsp; fee: Rp${Number(r.fee ?? 0).toLocaleString('id-ID')} &nbsp;|&nbsp; ${r.response_time_ms ?? '?'}ms</div>
+        </div>`).join('');
+  } catch(e) {
+    document.getElementById('dbRequestStats').innerHTML = '<div class="db-empty" style="color:var(--danger)">Gagal ambil data. Pastikan Gateway jalan dan endpoint /monitor/request-stats sudah ditambahkan ke main.py</div>';
+    document.getElementById('dbFeeStats').innerHTML = '<div class="db-empty" style="color:var(--danger)">Koneksi gagal</div>';
+  }
+
+  try {
+    const res2 = await fetch(GATEWAY + '/monitor/health-stats');
+    const json2 = await res2.json();
+    const healthLogs = Array.isArray(json2.data) ? json2.data : (json2.data?.recent_logs || []);
+
+    document.getElementById('dbHealthCount').textContent = healthLogs.length + ' entri terbaru';
+    document.getElementById('dbHealthList').innerHTML = healthLogs.length === 0
+      ? '<div class="db-empty">Belum ada health log. Klik "Cek Semua API" dulu biar tersimpan ke MongoDB.</div>'
+      : healthLogs.map(h => `
+        <div class="db-item">
+          <div class="db-item-header">
+            <span class="db-item-app" style="color:${h.status === 'online' ? 'var(--accent2)' : 'var(--danger)'}">${h.app_name ?? '?'} &mdash; ${h.status ?? '?'}</span>
+            <span class="db-item-time">${h.timestamp ? new Date(h.timestamp).toLocaleString('id-ID') : '—'}</span>
+          </div>
+          <div class="db-item-detail">${h.endpoint ?? '—'} &nbsp;|&nbsp; ${h.response_time_ms ?? '?'}ms &nbsp;|&nbsp; HTTP ${h.status_code ?? 'ERR'}${h.error_message ? ' &nbsp;|&nbsp; ' + h.error_message : ''}</div>
+        </div>`).join('');
+  } catch(e) {
+    document.getElementById('dbHealthList').innerHTML = '<div class="db-empty" style="color:var(--danger)">Gagal ambil health log. Tambahkan endpoint /monitor/health-stats ke main.py dulu.</div>';
+  }
+}
+</script>
+</body>
+</html><!-- This marker should not appear - appending JS before closing tags via sed -->

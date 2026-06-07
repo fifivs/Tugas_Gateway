@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Health Check - API Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+  <main class="tool-shell">
+    <header class="page-header">
+      <h2>❤️ Health Check Sender</h2>
+      <p>Kirim health status manual ke endpoint monitor health-check.</p>
+    </header>
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
+      <a class="btn btn-outline" href="/monitor">📡 Monitor</a>
+    </div>
+
+    <section class="glass-card">
+      <div class="card-header"><div class="card-title"><span class="icon">📝</span> Form Health Check</div></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="app_name">App Name</label>
+          <input class="form-input" id="app_name" value="MyApp" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="endpoint">Endpoint</label>
+          <input class="form-input" id="endpoint" value="/health" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="status">Status</label>
+          <select class="form-input" id="status"><option>online</option><option>offline</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="response_time_ms">Response Time (ms)</label>
+          <input class="form-input" type="number" id="response_time_ms" value="120" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="status_code">Status Code</label>
+          <input class="form-input" type="number" id="status_code" value="200" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="error_message">Error Message (opsional)</label>
+          <input class="form-input" id="error_message" placeholder="timeout, connection refused, dll" />
+        </div>
+      </div>
+
+      <button class="btn btn-success" id="btn_send">🚀 Kirim Health Check</button>
+
+      <div class="response-panel" style="margin-top: 16px;">
+        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+        <div class="response-body" id="resp">-</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    configureBackLink('nav_back')
+    const resp = document.getElementById('resp')
+    const statusLine = document.getElementById('status_line')
+
+    function setState(type, text) {
+      statusLine.className = 'response-status ' + type
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
+      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+    }
+
+    document.getElementById('btn_send').addEventListener('click', async () => {
+      const payload = {
+        user_id: 'monitor',
+        parameter: {
+          app_name: document.getElementById('app_name').value.trim(),
+          endpoint: document.getElementById('endpoint').value.trim(),
+          status: document.getElementById('status').value,
+          response_time_ms: Number(document.getElementById('response_time_ms').value || 0),
+          status_code: Number(document.getElementById('status_code').value || 0),
+          error_message: document.getElementById('error_message').value.trim() || null
+        }
+      }
+      setState('pending', 'Sending...')
+      resp.textContent = 'Loading...'
+      try {
+        const r = await fetch('/monitor/health-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        const data = await r.json()
+        resp.textContent = JSON.stringify(data, null, 2)
+        if (data.status === 'sukses') setState('success', 'Health check terkirim')
+        else setState('error', 'Health check gagal')
+      } catch (e) {
+        setState('error', 'Error koneksi')
+        resp.textContent = 'Error: ' + e
+      }
+    })
+  </script>
+</body>
+</html>

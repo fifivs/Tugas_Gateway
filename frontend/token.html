@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Token Generator - API Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+  <main class="tool-shell">
+    <header class="page-header">
+      <h2>🔑 Token Generator</h2>
+      <p>Generate JWT tester dari backend endpoint /generate_token_tester/{user_id}.</p>
+    </header>
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">🔀 Routing</a>
+    </div>
+
+    <section class="glass-card">
+      <div class="card-header"><div class="card-title"><span class="icon">👤</span> Input User ID</div></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="user_id">User ID</label>
+          <input class="form-input" id="user_id" value="alfa" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="btn_gen">Aksi</label>
+          <button class="btn btn-primary" id="btn_gen">🚀 Generate Token</button>
+        </div>
+      </div>
+      <div class="token-display" style="margin-top: 16px;">
+        <code id="token_value">-</code>
+        <button class="copy-btn" id="btn_copy" title="Salin Token">📋</button>
+      </div>
+      <div class="response-panel" style="margin-top: 16px;">
+        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+        <div class="response-body" id="resp">-</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    configureBackLink('nav_back')
+    const resp = document.getElementById('resp')
+    const statusLine = document.getElementById('status_line')
+    const tokenValue = document.getElementById('token_value')
+
+    function setState(type, text) {
+      statusLine.className = 'response-status ' + type
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
+      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+    }
+
+    document.getElementById('btn_gen').addEventListener('click', async () => {
+      const userId = document.getElementById('user_id').value.trim()
+      if (!userId) {
+        setState('error', 'user_id wajib diisi')
+        return
+      }
+      setState('pending', 'Generating...')
+      resp.textContent = 'Loading...'
+      tokenValue.textContent = '-'
+      try {
+        const r = await fetch('/generate_token_tester/' + encodeURIComponent(userId))
+        const data = await r.json()
+        resp.textContent = JSON.stringify(data, null, 2)
+        if (data.token_buat_ngetes) {
+          tokenValue.textContent = data.token_buat_ngetes
+          setState('success', 'Token berhasil dibuat')
+        } else {
+          setState('error', 'Token gagal dibuat')
+        }
+      } catch (e) {
+        setState('error', 'Error koneksi')
+        resp.textContent = 'Error: ' + e
+      }
+    })
+
+    document.getElementById('btn_copy').addEventListener('click', async () => {
+      const t = tokenValue.textContent
+      if (!t || t === '-') return
+      try {
+        await navigator.clipboard.writeText(t)
+      } catch (e) {}
+    })
+  </script>
+</body>
+</html>

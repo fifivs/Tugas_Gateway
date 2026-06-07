@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PasarKita - Marketplace UMKM</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --bg: #0a0e1a;
+    --bg2: #0f1524;
+    --card: #131929;
+    --border: #1e2d4a;
+    --accent: #3b82f6;
+    --accent2: #06d6a0;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --sidebar: #0d1220;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+  }
+
+  .sidebar-brand {
+    padding: 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-icon {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, #10b981, #3b82f6);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+
+  .brand-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: #fff; }
+  .brand-sub { font-size: 11px; color: var(--muted); }
+
+  .sidebar-nav { padding: 16px 12px; flex: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; padding: 0 8px; margin: 16px 0 6px; }
+
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 8px;
+    cursor: pointer; transition: all 0.2s;
+    font-size: 13px; color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .nav-item:hover { background: var(--border); color: var(--text); }
+  .nav-item.active { background: rgba(59,130,246,0.15); color: var(--accent); }
+  .nav-item span { font-size: 16px; }
+
+  .sidebar-footer {
+    padding: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .gateway-status {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 8px;
+    background: rgba(6,214,160,0.08);
+    border: 1px solid rgba(6,214,160,0.2);
+    font-size: 12px; color: var(--accent2);
+  }
+
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* MAIN */
+  .main { margin-left: 260px; flex: 1; display: flex; flex-direction: column; }
+
+  .topbar {
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .topbar-left { display: flex; align-items: center; gap: 12px; }
+  .page-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 18px; }
+  .page-sub { font-size: 12px; color: var(--muted); }
+
+  .gateway-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 20px;
+    background: rgba(59,130,246,0.1);
+    border: 1px solid rgba(59,130,246,0.3);
+    font-size: 11px; color: var(--accent);
+  }
+
+  .content { padding: 24px 28px; flex: 1; }
+
+  /* TABS */
+  .tabs {
+    display: flex; gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 24px;
+    width: fit-content;
+  }
+
+  .tab {
+    padding: 8px 18px; border-radius: 8px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: all 0.2s; color: var(--muted);
+  }
+  .tab.active { background: var(--accent); color: #fff; }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  /* PANEL */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 15px;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  /* FORM */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: span 2; }
+
+  label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    transition: border 0.2s;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* BUTTONS */
+  .btn {
+    padding: 10px 20px; border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer; border: none;
+    transition: all 0.2s; font-family: 'DM Sans', sans-serif;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+  .btn-success { background: var(--accent2); color: #000; }
+  .btn-success:hover { background: #05bf8e; transform: translateY(-1px); }
+  .btn-danger { background: var(--danger); color: #fff; }
+  .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+  .btn-ghost:hover { background: var(--border); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 16px; }
+
+  /* RESPONSE BOX */
+  .response-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 16px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    display: none;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .response-box.show { display: block; }
+  .response-box.success { border-color: rgba(6,214,160,0.4); }
+  .response-box.error { border-color: rgba(239,68,68,0.4); }
+
+  .response-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+  }
+
+  .status-badge {
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .status-badge.success { background: rgba(6,214,160,0.15); color: var(--accent2); }
+  .status-badge.error { background: rgba(239,68,68,0.15); color: var(--danger); }
+  .status-badge.loading { background: rgba(59,130,246,0.15); color: var(--accent); }
+
+  /* PRODUCTS GRID */
+  .products-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+
+  .product-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .product-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .product-card.selected { border-color: var(--accent2); background: rgba(6,214,160,0.05); }
+
+  .product-emoji { font-size: 32px; margin-bottom: 10px; }
+  .product-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .product-price { color: var(--accent2); font-weight: 700; font-size: 15px; }
+  .product-seller { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  /* ORDERS TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { padding: 10px 14px; text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  td { padding: 12px 14px; border-bottom: 1px solid rgba(30,45,74,0.5); }
+  tr:hover td { background: rgba(59,130,246,0.03); }
+
+  .badge {
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; display: inline-block;
+  }
+  .badge-success { background: rgba(6,214,160,0.15); color: var(--accent2); }
+  .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
+  .badge-danger { background: rgba(239,68,68,0.15); color: var(--danger); }
+
+  /* FLOW DIAGRAM */
+  .flow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 16px 0; }
+  .flow-node {
+    padding: 8px 14px; border-radius: 8px;
+    font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border);
+  }
+  .flow-node.app { background: rgba(59,130,246,0.1); border-color: rgba(59,130,246,0.3); color: var(--accent); }
+  .flow-node.gateway { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: var(--warn); }
+  .flow-node.bank { background: rgba(6,214,160,0.1); border-color: rgba(6,214,160,0.3); color: var(--accent2); }
+  .flow-arrow { color: var(--muted); font-size: 18px; }
+
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .info-item { background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+  .info-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+  .info-value { font-weight: 600; font-size: 14px; }
+
+  .loading-spinner {
+    display: inline-block; width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .token-display {
+    background: var(--bg);
+    border: 1px solid rgba(6,214,160,0.3);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    word-break: break-all;
+    display: none;
+    margin-top: 10px;
+  }
+  .token-display.show { display: block; }
+
+  .fee-preview {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 14px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+  }
+  .fee-label { color: var(--warn); }
+  .fee-amount { font-weight: 700; color: var(--warn); }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">🛍️</div>
+    <div>
+      <div class="brand-name">PasarKita</div>
+      <div class="brand-sub">Marketplace UMKM</div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label">Menu Utama</div>
+    <div class="nav-item active" onclick="switchTab('browse'); setActive(this)">
+      <span>🏪</span> Browse Produk
+    </div>
+    <div class="nav-item" onclick="switchTab('checkout'); setActive(this)">
+      <span>🛒</span> Checkout
+    </div>
+    <div class="nav-item" onclick="switchTab('status'); setActive(this)">
+      <span>📦</span> Status Order
+    </div>
+    <div class="nav-label">Informasi</div>
+    <div class="nav-item" onclick="switchTab('alur'); setActive(this)">
+      <span>🔄</span> Alur Sistem
+    </div>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="gateway-status">
+      <div class="dot"></div>
+      Gateway Online
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div>
+        <div class="page-title">PasarKita Marketplace</div>
+        <div class="page-sub">Semua transaksi diproses via API Gateway</div>
+      </div>
+    </div>
+    <div class="gateway-badge">
+      ⚡ via API Gateway → SmartBank
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- BROWSE TAB -->
+    <div class="panel active" id="tab-browse">
+      <div class="card">
+        <div class="card-title">🏪 Produk UMKM Tersedia</div>
+        <div class="products-grid" id="productGrid">
+          <div class="product-card" onclick="selectProduct(this, 'Kopi Arabica', 75000)">
+            <div class="product-emoji">☕</div>
+            <div class="product-name">Kopi Arabica Premium</div>
+            <div class="product-price">Rp 75.000</div>
+            <div class="product-seller">Toko Kopi Nusantara</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this, 'Batik Tulis', 250000)">
+            <div class="product-emoji">🎨</div>
+            <div class="product-name">Batik Tulis Solo</div>
+            <div class="product-price">Rp 250.000</div>
+            <div class="product-seller">Batik Sari Murni</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this, 'Keripik Singkong', 25000)">
+            <div class="product-emoji">🍟</div>
+            <div class="product-name">Keripik Singkong</div>
+            <div class="product-price">Rp 25.000</div>
+            <div class="product-seller">Snack Bu Tini</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this, 'Madu Hutan', 120000)">
+            <div class="product-emoji">🍯</div>
+            <div class="product-name">Madu Hutan Asli</div>
+            <div class="product-price">Rp 120.000</div>
+            <div class="product-seller">Lebah Madu Borneo</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this, 'Tempe Organik', 15000)">
+            <div class="product-emoji">🫘</div>
+            <div class="product-name">Tempe Organik</div>
+            <div class="product-price">Rp 15.000</div>
+            <div class="product-seller">Pak Slamet Organik</div>
+          </div>
+          <div class="product-card" onclick="selectProduct(this, 'Tas Anyaman', 180000)">
+            <div class="product-emoji">👜</div>
+            <div class="product-name">Tas Anyaman Bambu</div>
+            <div class="product-price">Rp 180.000</div>
+            <div class="product-seller">Kerajinan Jepara</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="selectedInfo" style="display:none">
+        <div class="card-title">✅ Produk Dipilih</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">PRODUK</div>
+            <div class="info-value" id="selProductName">-</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">HARGA</div>
+            <div class="info-value" id="selProductPrice">-</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-success" onclick="switchTab('checkout'); setActiveByName('checkout')">
+            🛒 Lanjut Checkout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHECKOUT TAB -->
+    <div class="panel" id="tab-checkout">
+
+      <!-- Step 1: Generate Token -->
+      <div class="card">
+        <div class="card-title">🔑 Step 1 — Generate Token JWT</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>User ID</label>
+            <input type="text" id="genUserId" placeholder="contoh: konsumen_001" value="konsumen_001">
+          </div>
+          <div class="form-group" style="justify-content: flex-end;">
+            <label>&nbsp;</label>
+            <button class="btn btn-primary" onclick="generateToken()" id="btnGenToken">
+              🔑 Generate Token
+            </button>
+          </div>
+        </div>
+        <div class="token-display" id="tokenDisplay"></div>
+      </div>
+
+      <!-- Step 2: Checkout Form -->
+      <div class="card">
+        <div class="card-title">🛒 Step 2 — Form Checkout</div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>User ID</label>
+            <input type="text" id="buyerUserId" placeholder="konsumen_001" value="konsumen_001">
+          </div>
+          <div class="form-group">
+            <label>Nama Produk</label>
+            <input type="text" id="productName" placeholder="Nama produk" id="productName">
+          </div>
+          <div class="form-group">
+            <label>Jumlah (Rp)</label>
+            <input type="number" id="checkoutAmount" placeholder="150000" value="150000" oninput="updateFeePreview()">
+          </div>
+          <div class="form-group">
+            <label>Merchant ID</label>
+            <input type="text" id="merchantId" placeholder="merchant_001" value="merchant_001">
+          </div>
+          <div class="form-group full">
+            <label>Token JWT</label>
+            <input type="text" id="checkoutToken" placeholder="Paste token dari Step 1...">
+          </div>
+        </div>
+
+        <div class="fee-preview">
+          <span class="fee-label">⚡ Fee Gateway (0.5%)</span>
+          <span class="fee-amount" id="feePreview">Rp 750</span>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-success" onclick="doCheckout()" id="btnCheckout">
+            🚀 Kirim via Gateway → SmartBank
+          </button>
+          <button class="btn btn-ghost" onclick="resetCheckout()">Reset</button>
+        </div>
+
+        <div class="response-box" id="checkoutResponse">
+          <div class="response-header">
+            <span id="checkoutStatus"></span>
+            <span id="checkoutTime"></span>
+          </div>
+          <pre id="checkoutResult"></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS TAB -->
+    <div class="panel" id="tab-status">
+      <div class="card">
+        <div class="card-title">📦 Riwayat Order</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Produk</th>
+              <th>Amount</th>
+              <th>Fee Gateway</th>
+              <th>Status</th>
+              <th>Waktu</th>
+            </tr>
+          </thead>
+          <tbody id="orderTable">
+            <tr>
+              <td colspan="6" style="text-align:center; color: var(--muted); padding: 30px;">
+                Belum ada order. Lakukan checkout dulu.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALUR TAB -->
+    <div class="panel" id="tab-alur">
+      <div class="card">
+        <div class="card-title">🔄 Alur Transaksi Marketplace</div>
+        <div class="flow">
+          <div class="flow-node app">🛍️ Marketplace</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node gateway">⚡ API Gateway</div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node bank">🏦 SmartBank</div>
+        </div>
+        <div style="font-size: 13px; color: var(--muted); line-height: 1.8; margin-top: 10px;">
+          <p>1. Marketplace kirim request checkout ke <strong style="color:var(--accent)">API Gateway</strong></p>
+          <p>2. Gateway validasi JWT token</p>
+          <p>3. Gateway catat log ke MongoDB Atlas</p>
+          <p>4. Gateway potong fee <strong style="color:var(--warn)">0.5%</strong> dari amount</p>
+          <p>5. Gateway terusin ke <strong style="color:var(--accent2)">SmartBank</strong></p>
+          <p>6. SmartBank proses pembayaran & kembalikan response</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">📋 Endpoint yang Digunakan</div>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">GENERATE TOKEN</div>
+            <div class="info-value" style="font-family:monospace; font-size:12px; color:var(--accent)">GET /generate_token_tester/{user_id}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">CHECKOUT / ROUTING</div>
+            <div class="info-value" style="font-family:monospace; font-size:12px; color:var(--accent2)">POST /integrator/routing_api</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">FEE GATEWAY</div>
+            <div class="info-value" style="font-family:monospace; font-size:12px; color:var(--warn)">0.5% dari setiap transaksi</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">VALIDASI TOKEN</div>
+            <div class="info-value" style="font-family:monospace; font-size:12px; color:var(--accent)">POST /integrator/validasi_request</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const GATEWAY_URL = 'http://127.0.0.1:8000';
+  let orders = [];
+  let currentToken = '';
+
+  function switchTab(name) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function setActive(el) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function setActiveByName(name) {
+    const items = document.querySelectorAll('.nav-item');
+    items.forEach(item => {
+      if (item.textContent.toLowerCase().includes(name)) {
+        item.classList.add('active');
+      } else {
+        item.classList.remove('active');
+      }
+    });
+  }
+
+  function selectProduct(el, name, price) {
+    document.querySelectorAll('.product-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('selProductName').textContent = name;
+    document.getElementById('selProductPrice').textContent = 'Rp ' + price.toLocaleString('id-ID');
+    document.getElementById('selectedInfo').style.display = 'block';
+    document.getElementById('productName').value = name;
+    document.getElementById('checkoutAmount').value = price;
+    updateFeePreview();
+  }
+
+  function updateFeePreview() {
+    const amount = parseFloat(document.getElementById('checkoutAmount').value) || 0;
+    const fee = amount * 0.005;
+    document.getElementById('feePreview').textContent = 'Rp ' + fee.toLocaleString('id-ID');
+  }
+
+  async function generateToken() {
+    const userId = document.getElementById('genUserId').value.trim();
+    if (!userId) { alert('Masukkan User ID dulu!'); return; }
+
+    const btn = document.getElementById('btnGenToken');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+
+    try {
+      const res = await fetch(`${GATEWAY_URL}/generate_token_tester/${userId}`);
+      const data = await res.json();
+      currentToken = data.token_buat_ngetes;
+
+      const display = document.getElementById('tokenDisplay');
+      display.textContent = currentToken;
+      display.classList.add('show');
+
+      document.getElementById('checkoutToken').value = currentToken;
+      document.getElementById('buyerUserId').value = userId;
+
+    } catch (e) {
+      alert('Gagal konek ke Gateway: ' + e.message);
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🔑 Generate Token';
+    }
+  }
+
+  async function doCheckout() {
+    const userId = document.getElementById('buyerUserId').value.trim();
+    const amount = parseFloat(document.getElementById('checkoutAmount').value);
+    const token = document.getElementById('checkoutToken').value.trim();
+    const merchantId = document.getElementById('merchantId').value.trim();
+    const productName = document.getElementById('productName').value.trim();
+
+    if (!userId || !token || !amount) {
+      alert('Lengkapi User ID, Token JWT, dan Jumlah!');
+      return;
+    }
+
+    const btn = document.getElementById('btnCheckout');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+
+    const start = Date.now();
+    const respBox = document.getElementById('checkoutResponse');
+    const respStatus = document.getElementById('checkoutStatus');
+    const respTime = document.getElementById('checkoutTime');
+    const respResult = document.getElementById('checkoutResult');
+
+    try {
+      const res = await fetch(`${GATEWAY_URL}/integrator/routing_api`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: userId,
+          parameter: {
+            token: token,
+            amount: amount,
+            recipient_id: merchantId,
+            product_name: productName,
+            source_app: 'marketplace'
+          }
+        })
+      });
+
+      const data = await res.json();
+      const elapsed = Date.now() - start;
+      const isSuccess = data.status === 'sukses';
+
+      respBox.className = 'response-box show ' + (isSuccess ? 'success' : 'error');
+      respStatus.innerHTML = `<span class="status-badge ${isSuccess ? 'success' : 'error'}">${isSuccess ? '✅ Sukses' : '❌ Gagal'}</span>`;
+      respTime.textContent = elapsed + 'ms';
+      respResult.textContent = JSON.stringify(data, null, 2);
+
+      if (isSuccess) {
+        const fee = data.data?.fee_diambil || amount * 0.005;
+        addOrder(userId, productName || 'Produk', amount, fee, isSuccess ? 'sukses' : 'gagal');
+      }
+
+    } catch (e) {
+      const elapsed = Date.now() - start;
+      respBox.className = 'response-box show error';
+      respStatus.innerHTML = `<span class="status-badge error">❌ Error</span>`;
+      respTime.textContent = elapsed + 'ms';
+      respResult.textContent = 'Error: ' + e.message;
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '🚀 Kirim via Gateway → SmartBank';
+    }
+  }
+
+  function addOrder(userId, product, amount, fee, status) {
+    const orderId = 'ORD-' + Math.random().toString(36).substr(2,6).toUpperCase();
+    const now = new Date().toLocaleString('id-ID');
+    orders.unshift({ orderId, userId, product, amount, fee, status, time: now });
+    renderOrders();
+  }
+
+  function renderOrders() {
+    const tbody = document.getElementById('orderTable');
+    if (orders.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color: var(--muted); padding: 30px;">Belum ada order.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = orders.map(o => `
+      <tr>
+        <td style="font-family:monospace; font-size:12px; color:var(--accent)">${o.orderId}</td>
+        <td>${o.product}</td>
+        <td>Rp ${o.amount.toLocaleString('id-ID')}</td>
+        <td style="color:var(--warn)">Rp ${o.fee.toLocaleString('id-ID')}</td>
+        <td><span class="badge ${o.status === 'sukses' ? 'badge-success' : 'badge-danger'}">${o.status}</span></td>
+        <td style="color:var(--muted); font-size:12px">${o.time}</td>
+      </tr>
+    `).join('');
+  }
+
+  function resetCheckout() {
+    document.getElementById('checkoutAmount').value = '150000';
+    document.getElementById('checkoutToken').value = '';
+    document.getElementById('merchantId').value = 'merchant_001';
+    document.getElementById('checkoutResponse').className = 'response-box';
+    updateFeePreview();
+  }
+
+  updateFeePreview();
+</script>
+</body>
+</html>

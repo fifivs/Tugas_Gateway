@@ -48,12 +48,39 @@
           <div class="nav-item" onclick="showPage('transaksi')" id="nav-transaksi">
             <span class="nav-icon">💸</span> Kirim Transaksi
           </div>
+          <div class="nav-item" onclick="window.location.href='/apps/manage'" id="nav-apps-manage">
+            <span class="nav-icon">🧩</span> Apps Management
+          </div>
+          <div class="nav-item" onclick="window.location.href='/integrator/manage/routing'" id="nav-routing-manage">
+            <span class="nav-icon">🔀</span> Routing Test
+          </div>
+          <div class="nav-item" onclick="showPage('universal')" id="nav-universal">
+            <span class="nav-icon">🌐</span> Universal Routing
+          </div>
         </div>
 
         <div class="nav-section">
           <div class="nav-section-title">Informasi</div>
           <div class="nav-item" onclick="showPage('fee')" id="nav-fee">
             <span class="nav-icon">💰</span> Kalkulator Fee
+          </div>
+          <div class="nav-item" onclick="window.location.href='/paket/list'" id="nav-pricing-list">
+            <span class="nav-icon">📦</span> Pricing List
+          </div>
+          <div class="nav-item" onclick="window.location.href='/pricing/manage'" id="nav-pricing-manage">
+            <span class="nav-icon">🧾</span> Pricing UI
+          </div>
+          <div class="nav-item" onclick="window.location.href='/token/manage'" id="nav-token-manage">
+            <span class="nav-icon">🎫</span> Token UI
+          </div>
+          <div class="nav-item" onclick="window.location.href='/integrator/fee/manage'" id="nav-fee-manage">
+            <span class="nav-icon">🧮</span> Fee UI
+          </div>
+          <div class="nav-item" onclick="window.location.href='/integrator/logging/manage'" id="nav-logging-manage">
+            <span class="nav-icon">📓</span> Logging UI
+          </div>
+          <div class="nav-item" onclick="window.location.href='/monitor/health-check/manage'" id="nav-health-manage">
+            <span class="nav-icon">❤️</span> Health UI
           </div>
           <div class="nav-item" onclick="showPage('alur')" id="nav-alur">
             <span class="nav-icon">🔄</span> Alur Sistem
@@ -95,8 +122,8 @@
         <div class="stats-grid">
           <div class="stat-card blue">
             <div class="stat-icon">⚡</div>
-            <div class="stat-value" id="statEndpoint">2</div>
-            <div class="stat-label">Endpoint Aktif</div>
+            <div class="stat-value" id="statEndpoint">14</div>
+            <div class="stat-label">API Endpoint Aktif</div>
           </div>
           <div class="stat-card green">
             <div class="stat-icon">🔐</div>
@@ -109,9 +136,9 @@
             <div class="stat-label">Fee Gateway</div>
           </div>
           <div class="stat-card rose">
-            <div class="stat-icon">🏦</div>
-            <div class="stat-value">SmartBank</div>
-            <div class="stat-label">Target Routing</div>
+            <div class="stat-icon">🌐</div>
+            <div class="stat-value" id="statApps">6</div>
+            <div class="stat-label">App Terdaftar</div>
           </div>
         </div>
 
@@ -124,6 +151,11 @@
             <div class="flow-step">
               <div class="step-icon">👤</div>
               <div class="step-label">Konsumen</div>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step" style="border: 2px solid #f59e0b;">
+              <div class="step-icon">🚦</div>
+              <div class="step-label">Rate Limit</div>
             </div>
             <div class="flow-arrow">→</div>
             <div class="flow-step">
@@ -141,11 +173,12 @@
               <div class="step-label">Hitung Fee</div>
             </div>
             <div class="flow-arrow">→</div>
-            <div class="flow-step">
-              <div class="step-icon">🏦</div>
-              <div class="step-label">SmartBank</div>
+            <div class="flow-step" style="border: 2px solid #6366f1;">
+              <div class="step-icon">🌐</div>
+              <div class="step-label">App Tujuan</div>
             </div>
           </div>
+          <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:12px;">App tujuan: SmartBank · Marketplace · POS · SupplierHub · LogistiKita · UMKM Insight</p>
         </div>
 
         <!-- Quick Actions -->
@@ -157,6 +190,10 @@
             <button class="btn btn-primary" onclick="showPage('token')" id="btnQuickToken">🔑 Generate Token</button>
             <button class="btn btn-success" onclick="showPage('transaksi')" id="btnQuickTransaksi">💸 Kirim
               Transaksi</button>
+          </div>
+          <div class="form-row" style="margin-top: 12px;">
+            <button class="btn btn-outline" onclick="window.location.href='/apps/manage'" id="btnQuickApps">🧩 Apps Management</button>
+            <button class="btn btn-outline" onclick="window.location.href='/integrator/manage/routing'" id="btnQuickRouting">🔀 Routing Test</button>
           </div>
         </div>
       </section>
@@ -522,12 +559,221 @@
               }</div>
           </div>
         </div>
+
+        <!-- Endpoint 3: Universal Routing -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="badge badge-error">POST</span>
+              /integrator/routing_universal
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Forward request ke app UMKM manapun. Wajib isi <code>target_app</code>. Sudah include rate limiting, validasi JWT, validasi amount, dan logging otomatis.</p>
+          <table class="data-table">
+            <thead><tr><th>Field</th><th>Tipe</th><th>Keterangan</th></tr></thead>
+            <tbody>
+              <tr><td>user_id</td><td><span class="badge badge-info">string</span></td><td>ID pengguna</td></tr>
+              <tr><td>parameter.token</td><td><span class="badge badge-info">string</span></td><td>Token JWT</td></tr>
+              <tr><td>parameter.target_app</td><td><span class="badge badge-info">string</span></td><td>ID app tujuan (smartbank/marketplace/pos/supplierhub/logistikita/umkminsight)</td></tr>
+              <tr><td>parameter.amount</td><td><span class="badge badge-info">number</span></td><td>Jumlah transaksi (opsional)</td></tr>
+              <tr><td>parameter.target_endpoint</td><td><span class="badge badge-info">string</span></td><td>Override endpoint tujuan (opsional)</td></tr>
+            </tbody>
+          </table>
+          <div class="response-panel" style="margin-top: 16px;">
+            <div class="response-header"><div class="response-status success">✅ Response Sukses</div></div>
+            <div class="response-body">{ "status": "sukses", "data": { "target_app": "marketplace", "fee_gateway": 250, "fee_persen": "0.5%", "response_time_ms": 42, "respons_dari_app": { ... } } }</div>
+          </div>
+        </div>
+
+        <!-- Endpoint 4: Daftar Route -->
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title">
+              <span class="badge badge-success">GET</span>
+              /integrator/daftar_route
+            </div>
+          </div>
+          <p style="color: var(--text-secondary); margin-bottom: 16px;">Tampilkan routing table — daftar semua app yang terdaftar di Gateway beserta URL dan endpoint default. Berguna untuk dokumentasi dan debug integrasi.</p>
+          <div class="response-panel">
+            <div class="response-header"><div class="response-status success">✅ Response 200</div></div>
+            <div class="response-body">{ "status": "sukses", "data": { "total_app": 6, "daftar_app": [ { "app_id": "smartbank", "kelompok": "Kelompok 1", "base_url": "http://...", "default_endpoint": "/smartbank/pembayaran_transaksi" }, ... ] } }</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ========== UNIVERSAL ROUTING ========== -->
+      <section class="page-section" id="page-universal">
+        <div class="page-header">
+          <h2>🌐 Universal Routing</h2>
+          <p>Forward request ke app UMKM manapun melalui API Gateway — dengan rate limiting, validasi, dan logging otomatis</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📡</span> Form Universal Routing</div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="urUserId">User ID</label>
+              <input type="text" class="form-input" id="urUserId" placeholder="user123">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="urAmount">Jumlah (Rp)</label>
+              <input type="number" class="form-input" id="urAmount" placeholder="50000" min="0">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="urTargetApp">Target App</label>
+              <select class="form-input" id="urTargetApp" style="cursor:pointer;">
+                <option value="smartbank">🏦 SmartBank — Kelompok 1</option>
+                <option value="marketplace">🛒 Marketplace (PasarKita) — Kelompok 2</option>
+                <option value="pos">🧾 POS (WarungPOS) — Kelompok 3</option>
+                <option value="supplierhub">📦 SupplierHub — Kelompok 4</option>
+                <option value="logistikita">🚚 LogistiKita — Kelompok 5</option>
+                <option value="umkminsight">📊 UMKM Insight — Kelompok 6</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="urSourceApp">Source App (opsional)</label>
+              <input type="text" class="form-input" id="urSourceApp" placeholder="marketplace">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="urToken">Token JWT</label>
+            <input type="text" class="form-input" id="urToken" placeholder="Tempel token JWT di sini...">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="urEndpoint">Override Endpoint (opsional)</label>
+            <input type="text" class="form-input" id="urEndpoint" placeholder="Kosongkan untuk pakai endpoint default app">
+          </div>
+          <div style="margin-top: 20px; display:flex; gap:12px;">
+            <button class="btn btn-primary" onclick="kirimUniversalRouting()" id="btnUniversalRouting">🚀 Kirim via Universal Routing</button>
+            <button class="btn btn-outline" onclick="document.getElementById('urToken').value=''" id="btnUrReset">🔄 Reset Token</button>
+          </div>
+        </div>
+
+        <div class="glass-card" id="urResponseCard" style="display:none;">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">📨</span> Respons Gateway</div>
+          </div>
+          <div class="response-panel">
+            <div class="response-header">
+              <div class="response-status" id="urResponseStatus">⏳ Menunggu...</div>
+              <span style="font-size:12px; color:var(--text-muted);" id="urResponseTime"></span>
+            </div>
+            <div class="response-body" id="urResponseBody">-</div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div class="card-header">
+            <div class="card-title"><span class="icon">🗺️</span> Routing Table — Semua App Terdaftar</div>
+          </div>
+          <table class="data-table">
+            <thead><tr><th>App ID</th><th>Kelompok</th><th>Base URL</th><th>Default Endpoint</th></tr></thead>
+            <tbody id="routingTableBody">
+              <tr><td colspan="4" style="text-align:center; color:var(--text-muted);">Loading routing table...</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
     </main>
   </div>
 
   <script src="/static/script.js"></script>
+  <script>
+    // ================================================
+    // UNIVERSAL ROUTING — Kirim ke App Manapun
+    // ================================================
+    async function kirimUniversalRouting() {
+      const userId    = document.getElementById('urUserId').value.trim();
+      const amount    = parseFloat(document.getElementById('urAmount').value) || 0;
+      const targetApp = document.getElementById('urTargetApp').value;
+      const sourceApp = document.getElementById('urSourceApp').value.trim();
+      const token     = document.getElementById('urToken').value.trim();
+      const endpoint  = document.getElementById('urEndpoint').value.trim();
+
+      if (!userId || !token) {
+        alert('User ID dan Token JWT wajib diisi!');
+        return;
+      }
+
+      const btn = document.getElementById('btnUniversalRouting');
+      btn.disabled = true;
+      btn.textContent = '⏳ Mengirim...';
+
+      const card = document.getElementById('urResponseCard');
+      card.style.display = 'block';
+      document.getElementById('urResponseStatus').innerHTML = '⏳ Mengirim ke ' + targetApp + '...';
+      document.getElementById('urResponseStatus').className = 'response-status';
+      document.getElementById('urResponseBody').textContent = '-';
+      document.getElementById('urResponseTime').textContent = '';
+
+      const startTime = Date.now();
+      const param = { token, target_app: targetApp, amount };
+      if (sourceApp) param.source_app = sourceApp;
+      if (endpoint)  param.target_endpoint = endpoint;
+
+      try {
+        const res  = await fetch('/integrator/routing_universal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, parameter: param })
+        });
+        const data    = await res.json();
+        const elapsed = Date.now() - startTime;
+        const ok      = data.status === 'sukses';
+        const kode    = data.data?.kode || '';
+
+        document.getElementById('urResponseStatus').innerHTML = ok
+          ? '✅ Sukses — Gateway berhasil forward ke ' + targetApp
+          : '❌ Gagal — ' + (kode || data.data?.pesan || 'Error');
+        document.getElementById('urResponseStatus').className = 'response-status ' + (ok ? 'success' : 'error');
+        document.getElementById('urResponseTime').textContent = elapsed + 'ms';
+        document.getElementById('urResponseBody').textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        document.getElementById('urResponseStatus').innerHTML = '❌ Network Error';
+        document.getElementById('urResponseBody').textContent = e.message;
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Kirim via Universal Routing';
+      }
+    }
+
+    // ================================================
+    // ROUTING TABLE — Fetch dari /integrator/daftar_route
+    // ================================================
+    async function loadRoutingTable() {
+      try {
+        const res  = await fetch('/integrator/daftar_route');
+        const data = await res.json();
+        const apps = data.data?.daftar_app || [];
+
+        // Update stat card
+        const statEl = document.getElementById('statApps');
+        if (statEl) statEl.textContent = data.data?.total_app || apps.length;
+
+        // Fill routing table
+        const tbody = document.getElementById('routingTableBody');
+        if (tbody && apps.length) {
+          tbody.innerHTML = apps.map(app => `
+            <tr>
+              <td><strong>${app.app_id}</strong></td>
+              <td>${app.kelompok}</td>
+              <td><code style="font-size:12px;">${app.base_url}</code></td>
+              <td><code style="font-size:12px;">${app.default_endpoint}</code></td>
+            </tr>`).join('');
+        }
+      } catch (e) {
+        console.warn('Gagal load routing table:', e);
+      }
+    }
+
+    // Jalankan saat halaman siap
+    document.addEventListener('DOMContentLoaded', loadRoutingTable);
+  </script>
 </body>
 
 </html>

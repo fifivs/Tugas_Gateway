@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Apps Management - API Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+    .tool-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .tool-note {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+    .kbd-pill {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: var(--text-primary);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-box {
+      margin-top: 16px;
+    }
+    .helper-text {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    @media (max-width: 860px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <main class="tool-shell">
+    <header class="page-header">
+      <h2>🧩 Apps Management</h2>
+      <p>Daftarkan app, cek status langganan, lalu lanjut test routing dari satu alur.</p>
+    </header>
+
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">🔀 Routing Test</a>
+      <a class="btn btn-outline" href="/paket/list">📦 Pricing JSON</a>
+    </div>
+
+    <section class="glass-card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📝</span> Daftar App (Register)</div>
+      </div>
+      <p class="tool-note">Klik <span class="kbd-pill">Register</span> untuk membuat app baru dan otomatis mendapatkan <strong>api_key</strong>.</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="reg_app_name">Nama App</label>
+          <input class="form-input" id="reg_app_name" value="MyApp" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg_paket">Pilih Paket</label>
+          <select class="form-input" id="reg_paket">
+            <option>Starter</option>
+            <option>Basic</option>
+            <option>Pro</option>
+            <option>Enterprise</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btn_register">🚀 Register</button>
+
+      <div class="status-box response-panel">
+        <div class="response-header">
+          <div class="response-status" id="reg_status"><span>ℹ️</span> Response Register</div>
+        </div>
+        <div class="response-body" id="reg_resp">-</div>
+      </div>
+    </section>
+
+    <section class="glass-card">
+      <div class="card-header">
+        <div class="card-title"><span class="icon">📡</span> Cek Status App</div>
+      </div>
+      <p class="tool-note">Tempel <strong>api_key</strong> hasil register, lalu klik <span class="kbd-pill">Check</span>.</p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="status_api_key">API Key</label>
+          <input class="form-input" id="status_api_key" placeholder="contoh: mya_xxxxxxxxx" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="btn_check">Aksi</label>
+          <button class="btn btn-success" id="btn_check">✅ Check Status</button>
+        </div>
+      </div>
+
+      <div class="status-box response-panel">
+        <div class="response-header">
+          <div class="response-status" id="status_status"><span>ℹ️</span> Response Status</div>
+        </div>
+        <div class="response-body" id="status_resp">-</div>
+      </div>
+      <div class="helper-text">Tip: Kalau paket masih Starter, endpoint routing akan ditolak sampai upgrade ke Basic/Pro/Enterprise.</div>
+    </section>
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    configureBackLink('nav_back')
+    const regResp = document.getElementById('reg_resp')
+    const statusResp = document.getElementById('status_resp')
+    const regStatus = document.getElementById('reg_status')
+    const statusStatus = document.getElementById('status_status')
+
+    function setPending(el, text) {
+      el.className = 'response-status pending'
+      el.innerHTML = '<span>⏳</span> ' + text
+    }
+
+    function setSuccess(el, text) {
+      el.className = 'response-status success'
+      el.innerHTML = '<span>✅</span> ' + text
+    }
+
+    function setError(el, text) {
+      el.className = 'response-status error'
+      el.innerHTML = '<span>❌</span> ' + text
+    }
+
+    document.getElementById('btn_register').addEventListener('click', async () => {
+      const appName = document.getElementById('reg_app_name').value.trim()
+      const paket = document.getElementById('reg_paket').value
+
+      if (!appName) {
+        setError(regStatus, 'Nama app wajib diisi')
+        regResp.textContent = '{"pesan":"Nama app wajib diisi"}'
+        return
+      }
+
+      setPending(regStatus, 'Mengirim register request...')
+      regResp.textContent = 'Loading...'
+
+      try {
+        const res = await fetch('/apps/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: 'web', parameter: { app_name: appName, nama_paket: paket } })
+        })
+
+        const data = await res.json()
+        regResp.textContent = JSON.stringify(data, null, 2)
+
+        if (data && data.status === 'sukses') {
+          setSuccess(regStatus, 'Register berhasil')
+          if (data.data && data.data.api_key) {
+            document.getElementById('status_api_key').value = data.data.api_key
+          }
+        } else {
+          setError(regStatus, 'Register gagal')
+        }
+      } catch (e) {
+        setError(regStatus, 'Gagal konek ke server')
+        regResp.textContent = 'Error: ' + e
+      }
+    })
+
+    document.getElementById('btn_check').addEventListener('click', async () => {
+      const key = document.getElementById('status_api_key').value.trim()
+      if (!key) {
+        setError(statusStatus, 'api_key wajib diisi')
+        statusResp.textContent = '{"pesan":"api_key wajib diisi"}'
+        return
+      }
+
+      setPending(statusStatus, 'Mengambil status app...')
+      statusResp.textContent = 'Loading...'
+
+      try {
+        const res = await fetch('/apps/status?api_key=' + encodeURIComponent(key))
+        const data = await res.json()
+        statusResp.textContent = JSON.stringify(data, null, 2)
+        if (data && data.status === 'sukses') {
+          setSuccess(statusStatus, 'Status app berhasil diambil')
+        } else {
+          setError(statusStatus, 'Status app gagal diambil')
+        }
+      } catch (e) {
+        setError(statusStatus, 'Gagal konek ke server')
+        statusResp.textContent = 'Error: ' + e
+      }
+    })
+  </script>
+</body>
+</html>

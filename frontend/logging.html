@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Logging Tool - API Gateway</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+  <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+  <main class="tool-shell">
+    <header class="page-header">
+      <h2>📝 Logging Tool</h2>
+      <p>Kirim log custom ke endpoint integrator logging untuk kebutuhan pengujian.</p>
+    </header>
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
+      <a class="btn btn-outline" href="/monitor">📡 Monitor</a>
+    </div>
+
+    <section class="glass-card">
+      <div class="card-header"><div class="card-title"><span class="icon">📨</span> Send Log</div></div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="user_id">User ID</label>
+          <input class="form-input" id="user_id" value="tester" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="endpoint">Endpoint Dicatat</label>
+          <input class="form-input" id="endpoint" value="/custom/test" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="extra">Info Tambahan (JSON object)</label>
+        <textarea class="form-input" id="extra" rows="6">{"info":"uji logging dari UI","source":"logging.html"}</textarea>
+      </div>
+      <button class="btn btn-primary" id="btn_send">🚀 Kirim Log</button>
+      <div class="response-panel" style="margin-top: 16px;">
+        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+        <div class="response-body" id="resp">-</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    configureBackLink('nav_back')
+    const resp = document.getElementById('resp')
+    const statusLine = document.getElementById('status_line')
+
+    function setState(type, text) {
+      statusLine.className = 'response-status ' + type
+      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
+      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+    }
+
+    document.getElementById('btn_send').addEventListener('click', async () => {
+      let extra = {}
+      try {
+        extra = JSON.parse(document.getElementById('extra').value || '{}')
+      } catch (e) {
+        setState('error', 'JSON tambahan tidak valid')
+        resp.textContent = 'Error: JSON tambahan tidak valid'
+        return
+      }
+
+      const payload = {
+        user_id: document.getElementById('user_id').value.trim(),
+        parameter: {
+          endpoint: document.getElementById('endpoint').value.trim(),
+          ...extra
+        }
+      }
+
+      setState('pending', 'Sending...')
+      resp.textContent = 'Loading...'
+      try {
+        const r = await fetch('/integrator/logging', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+        const data = await r.json()
+        resp.textContent = JSON.stringify(data, null, 2)
+        if (data.status === 'sukses') setState('success', 'Log berhasil dikirim')
+        else setState('error', 'Log gagal dikirim')
+      } catch (e) {
+        setState('error', 'Error koneksi')
+        resp.textContent = 'Error: ' + e
+      }
+    })
+  </script>
+</body>
+</html>
