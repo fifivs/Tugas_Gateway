@@ -3,51 +3,92 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Fee Calculator - API Gateway</title>
+  <title>Fee Calculator — API Gateway</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
-    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .mini { background: var(--bg-glass); border: 1px solid var(--border-glass); border-radius: var(--radius-sm); padding: 12px; }
-    .mini-label { font-size: 12px; color: var(--text-muted); }
-    .mini-value { font-size: 22px; font-weight: 700; }
+    .mini {
+      background: var(--bg-glass); border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md); padding: 18px 20px;
+    }
+    .mini-label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .mini-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
+    .mini.blue .mini-value { color: var(--accent-blue-light); }
+    .mini.green .mini-value { color: var(--accent-emerald); }
     @media (max-width: 760px) { .result-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
   <main class="tool-shell">
     <header class="page-header">
-      <h2>💰 Fee Calculator</h2>
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        Fee Calculator
+      </h2>
       <p>Hitung biaya layanan integrasi via endpoint backend.</p>
     </header>
+
     <div class="tool-topbar">
-      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
-      <a class="btn btn-outline" href="/apps/manage">🧩 Apps</a>
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Kembali ke Beranda
+      </a>
+      <a class="btn btn-outline" href="/apps/manage">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Apps
+      </a>
     </div>
 
     <section class="glass-card">
-      <div class="card-header"><div class="card-title"><span class="icon">🧮</span> Kalkulasi</div></div>
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3"/><path d="M9 15h3l8.5-8.5a1.5 1.5 0 0 0-3-3L9 12v3"/></svg>
+          </span>
+          Kalkulasi Fee
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="user_id">User ID</label>
           <input class="form-input" id="user_id" value="tester" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="amount">Amount</label>
+          <label class="form-label" for="amount">Amount (Rp)</label>
           <input class="form-input" type="number" id="amount" value="100000" />
         </div>
       </div>
-      <button class="btn btn-success" id="btn_calc">🚀 Hitung Fee</button>
 
-      <div class="result-grid" style="margin-top: 16px;">
-        <div class="mini"><div class="mini-label">Fee Nominal</div><div class="mini-value" id="fee_nominal">Rp 0</div></div>
-        <div class="mini"><div class="mini-label">Jumlah Diteruskan</div><div class="mini-value" id="net_amount">Rp 0</div></div>
+      <button class="btn btn-success" id="btn_calc">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Hitung Fee
+      </button>
+
+      <div class="result-grid" style="margin-top: 20px;">
+        <div class="mini blue">
+          <div class="mini-label">Fee Nominal (0.5%)</div>
+          <div class="mini-value" id="fee_nominal">Rp 0</div>
+        </div>
+        <div class="mini green">
+          <div class="mini-label">Jumlah Diteruskan ke SmartBank</div>
+          <div class="mini-value" id="net_amount">Rp 0</div>
+        </div>
       </div>
 
-      <div class="response-panel" style="margin-top: 16px;">
-        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+      <div class="response-panel" style="margin-top: 18px;">
+        <div class="response-header">
+          <div class="response-status" id="status_line">
+            <span class="status-pill"></span>
+            Response
+          </div>
+        </div>
         <div class="response-body" id="resp">-</div>
       </div>
     </section>
@@ -55,41 +96,40 @@
 
   <script src="/static/tool_common.js"></script>
   <script>
-    configureBackLink('nav_back')
-    const resp = document.getElementById('resp')
-    const statusLine = document.getElementById('status_line')
+    const SVG_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
+    const SVG_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
+    const SVG_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
+
+    configureBackLink('nav_back');
+    const resp       = document.getElementById('resp');
+    const statusLine = document.getElementById('status_line');
 
     function setState(type, text) {
-      statusLine.className = 'response-status ' + type
-      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
-      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+      const dot = type === 'success' ? SVG_OK : type === 'error' ? SVG_ERR : SVG_PEND;
+      statusLine.className = 'response-status ' + type;
+      statusLine.innerHTML = dot + ' ' + text;
     }
 
-    function rp(v) { return 'Rp ' + Number(v || 0).toLocaleString('id-ID') }
+    function rp(v) { return 'Rp ' + Number(v || 0).toLocaleString('id-ID'); }
 
     document.getElementById('btn_calc').addEventListener('click', async () => {
       const payload = {
         user_id: document.getElementById('user_id').value.trim(),
         parameter: { amount: Number(document.getElementById('amount').value || 0) }
-      }
-      setState('pending', 'Calculating...')
-      resp.textContent = 'Loading...'
+      };
+      setState('pending', 'Calculating...');
+      resp.textContent = 'Loading...';
       try {
-        const r = await fetch('/integrator/biaya_layanan_integrasi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        const data = await r.json()
-        resp.textContent = JSON.stringify(data, null, 2)
+        const r    = await fetch('/integrator/biaya_layanan_integrasi', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await r.json();
+        resp.textContent = JSON.stringify(data, null, 2);
         if (data.status === 'sukses') {
-          setState('success', 'Kalkulasi berhasil')
-          document.getElementById('fee_nominal').textContent = rp(data.data.fee_gateway_nominal)
-          document.getElementById('net_amount').textContent = rp(data.data.jumlah_diteruskan)
-        } else {
-          setState('error', 'Kalkulasi gagal')
-        }
-      } catch (e) {
-        setState('error', 'Error koneksi')
-        resp.textContent = 'Error: ' + e
-      }
-    })
+          setState('success', 'Kalkulasi berhasil');
+          document.getElementById('fee_nominal').textContent = rp(data.data.fee_gateway_nominal);
+          document.getElementById('net_amount').textContent  = rp(data.data.jumlah_diteruskan);
+        } else { setState('error', 'Kalkulasi gagal'); }
+      } catch (e) { setState('error', 'Error koneksi'); resp.textContent = 'Error: ' + e; }
+    });
   </script>
 </body>
 </html>

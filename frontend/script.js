@@ -1,5 +1,4 @@
 // ===== AUTH CHECK =====
-// Redirect ke login jika belum login
 if (localStorage.getItem('gateway_logged_in') !== 'true') {
   window.location.href = '/login';
 }
@@ -19,12 +18,12 @@ function logout() {
 function showPage(pageId) {
   document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  
+
   const page = document.getElementById('page-' + pageId);
   const nav = document.getElementById('nav-' + pageId);
   if (page) page.classList.add('active');
   if (nav) nav.classList.add('active');
-  
+
   // Close sidebar on mobile
   if (window.innerWidth <= 768) {
     document.getElementById('sidebar').classList.remove('open');
@@ -36,14 +35,17 @@ function toggleSidebar() {
 }
 
 // ===== TOAST NOTIFICATIONS =====
+const toastIcons = {
+  success: `<svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`,
+  error:   `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  info:    `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`
+};
+
 function showToast(message, type = 'info') {
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = 'toast ' + type;
-  
-  const icons = { success: '✅', error: '❌', info: 'ℹ️' };
-  toast.innerHTML = '<span>' + (icons[type] || 'ℹ️') + '</span><span class="toast-message">' + message + '</span>';
-  
+  toast.innerHTML = `<span class="toast-icon">${toastIcons[type] || toastIcons.info}</span><span class="toast-message">${message}</span>`;
   container.appendChild(toast);
   setTimeout(() => toast.remove(), 4000);
 }
@@ -74,15 +76,15 @@ async function generateToken() {
     showToast('Masukkan User ID terlebih dahulu!', 'error');
     return;
   }
-  
+
   const btn = document.getElementById('btnGenerateToken');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Generating...';
-  
+
   try {
     const res = await fetch(API_BASE + '/generate_token_tester/' + encodeURIComponent(userId));
     const data = await res.json();
-    
+
     document.getElementById('tokenValue').textContent = data.token_buat_ngetes;
     document.getElementById('tokenResult').style.display = 'block';
     showToast('Token berhasil di-generate!', 'success');
@@ -90,7 +92,7 @@ async function generateToken() {
     showToast('Gagal generate token: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '🔑 Generate Token';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Generate Token`;
   }
 }
 
@@ -100,7 +102,6 @@ function copyToken() {
   navigator.clipboard.writeText(token).then(() => {
     showToast('Token berhasil disalin!', 'success');
   }).catch(() => {
-    // Fallback
     const textarea = document.createElement('textarea');
     textarea.value = token;
     document.body.appendChild(textarea);
@@ -117,13 +118,13 @@ async function kirimTransaksi() {
   const amount = parseFloat(document.getElementById('txAmount').value) || 0;
   const token = document.getElementById('txToken').value.trim();
   const metadataRaw = document.getElementById('txMetadata').value.trim();
-  
+
   if (!userId) { showToast('User ID wajib diisi!', 'error'); return; }
-  if (!token) { showToast('Token JWT wajib diisi!', 'error'); return; }
+  if (!token)  { showToast('Token JWT wajib diisi!', 'error'); return; }
   if (amount <= 0) { showToast('Jumlah harus lebih dari 0!', 'error'); return; }
-  
+
   let parameter = { token: token, amount: amount };
-  
+
   if (metadataRaw) {
     try {
       const extra = JSON.parse(metadataRaw);
@@ -133,50 +134,50 @@ async function kirimTransaksi() {
       return;
     }
   }
-  
+
   const body = { user_id: userId, parameter: parameter };
-  
+
   const btn = document.getElementById('btnKirimTransaksi');
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner"></div> Mengirim...';
-  
+
   const startTime = Date.now();
   document.getElementById('txResponseCard').style.display = 'block';
   document.getElementById('txResponseStatus').className = 'response-status pending';
-  document.getElementById('txResponseStatus').innerHTML = '<span>⏳</span> Memproses...';
+  document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-amber);"></span> Memproses...';
   document.getElementById('txResponseBody').textContent = 'Mengirim request ke server...';
-  
+
   try {
     const res = await fetch(API_BASE + '/integrator/routing_api', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    
+
     const data = await res.json();
     const elapsed = Date.now() - startTime;
-    
+
     document.getElementById('txResponseTime').textContent = elapsed + 'ms';
     document.getElementById('txResponseBody').textContent = JSON.stringify(data, null, 2);
-    
+
     if (data.status === 'sukses') {
       document.getElementById('txResponseStatus').className = 'response-status success';
-      document.getElementById('txResponseStatus').innerHTML = '<span>✅</span> Sukses';
+      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-emerald);"></span> Sukses';
       showToast('Transaksi berhasil diproses!', 'success');
     } else {
       document.getElementById('txResponseStatus').className = 'response-status error';
-      document.getElementById('txResponseStatus').innerHTML = '<span>❌</span> Gagal';
+      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-rose);"></span> Gagal';
       showToast('Transaksi gagal: ' + (data.data?.pesan || 'Unknown error'), 'error');
     }
   } catch (err) {
     document.getElementById('txResponseStatus').className = 'response-status error';
-    document.getElementById('txResponseStatus').innerHTML = '<span>❌</span> Error';
+    document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-rose);"></span> Error';
     document.getElementById('txResponseBody').textContent = 'Error: ' + err.message;
     document.getElementById('txResponseTime').textContent = (Date.now() - startTime) + 'ms';
     showToast('Gagal mengirim: ' + err.message, 'error');
   } finally {
     btn.disabled = false;
-    btn.innerHTML = '🚀 Kirim Transaksi';
+    btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg> Kirim Transaksi`;
   }
 }
 
@@ -205,11 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-  
+
   // Cek server saat load
   cekServer();
   setInterval(cekServer, 15000);
-  
+
   // Display user name
   const userName = localStorage.getItem('gateway_user');
   if (userName) {
@@ -223,7 +224,7 @@ function hitungFeePreview() {
   const amount = parseFloat(document.getElementById('feeAmount').value) || 0;
   const fee = amount * 0.005;
   const net = amount - fee;
-  
+
   document.getElementById('feeResult').textContent = formatRupiah(fee);
   document.getElementById('feeNet').textContent = formatRupiah(net);
 }

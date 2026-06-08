@@ -3,76 +3,63 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Apps Management - API Gateway</title>
+  <title>Apps Management — API Gateway</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
-    .tool-shell {
-      position: relative;
-      z-index: 1;
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 28px 20px 48px;
-    }
-    .tool-topbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    .tool-note {
-      color: var(--text-secondary);
-      font-size: 14px;
-      margin-bottom: 16px;
-    }
+    .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .tool-note { color: var(--text-secondary); font-size: 13.5px; margin-bottom: 16px; line-height: 1.6; }
     .kbd-pill {
-      display: inline-block;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid var(--border-glass);
-      color: var(--text-primary);
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 12px;
-      font-weight: 600;
+      display: inline-block; background: rgba(255,255,255,0.06);
+      border: 1px solid var(--border-glass); color: var(--text-primary);
+      border-radius: 6px; padding: 1px 8px; font-size: 12px; font-weight: 600;
     }
-    .status-box {
-      margin-top: 16px;
-    }
-    .helper-text {
-      color: var(--text-muted);
-      font-size: 12px;
-      margin-top: 8px;
-    }
-    @media (max-width: 860px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
+    .helper-text { color: var(--text-muted); font-size: 12.5px; margin-top: 10px; }
+    @media (max-width:860px) { .form-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
-  <div class="bg-animation">
-    <div class="orb"></div>
-    <div class="orb"></div>
-    <div class="orb"></div>
-  </div>
+  <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
 
   <main class="tool-shell">
     <header class="page-header">
-      <h2>🧩 Apps Management</h2>
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        </span>
+        Apps Management
+      </h2>
       <p>Daftarkan app, cek status langganan, lalu lanjut test routing dari satu alur.</p>
     </header>
 
     <div class="tool-topbar">
-      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
-      <a class="btn btn-outline" href="/integrator/manage/routing">🔀 Routing Test</a>
-      <a class="btn btn-outline" href="/paket/list">📦 Pricing JSON</a>
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Kembali ke Beranda
+      </a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+        Routing Test
+      </a>
+      <a class="btn btn-outline" href="/paket/list">
+        <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        Pricing JSON
+      </a>
     </div>
 
+    <!-- Register App -->
     <section class="glass-card">
       <div class="card-header">
-        <div class="card-title"><span class="icon">📝</span> Daftar App (Register)</div>
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </span>
+          Daftar App (Register)
+        </div>
       </div>
-      <p class="tool-note">Klik <span class="kbd-pill">Register</span> untuk membuat app baru dan otomatis mendapatkan <strong>api_key</strong>.</p>
+      <p class="tool-note">
+        Klik <span class="kbd-pill">Register</span> untuk membuat app baru dan otomatis mendapatkan <strong>api_key</strong>.
+      </p>
 
       <div class="form-row">
         <div class="form-group">
@@ -90,19 +77,31 @@
         </div>
       </div>
 
-      <button class="btn btn-primary" id="btn_register">🚀 Register</button>
+      <button class="btn btn-primary" id="btn_register">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        Register App
+      </button>
 
-      <div class="status-box response-panel">
+      <div class="response-panel" style="margin-top: 18px;">
         <div class="response-header">
-          <div class="response-status" id="reg_status"><span>ℹ️</span> Response Register</div>
+          <div class="response-status" id="reg_status">
+            <span class="status-pill"></span>
+            Response Register
+          </div>
         </div>
         <div class="response-body" id="reg_resp">-</div>
       </div>
     </section>
 
+    <!-- Check Status -->
     <section class="glass-card">
       <div class="card-header">
-        <div class="card-title"><span class="icon">📡</span> Cek Status App</div>
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+          Cek Status App
+        </div>
       </div>
       <p class="tool-note">Tempel <strong>api_key</strong> hasil register, lalu klik <span class="kbd-pill">Check</span>.</p>
 
@@ -113,105 +112,76 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="btn_check">Aksi</label>
-          <button class="btn btn-success" id="btn_check">✅ Check Status</button>
+          <button class="btn btn-success" id="btn_check">
+            <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Check Status
+          </button>
         </div>
       </div>
 
-      <div class="status-box response-panel">
+      <div class="response-panel" style="margin-top: 18px;">
         <div class="response-header">
-          <div class="response-status" id="status_status"><span>ℹ️</span> Response Status</div>
+          <div class="response-status" id="status_status">
+            <span class="status-pill"></span>
+            Response Status
+          </div>
         </div>
         <div class="response-body" id="status_resp">-</div>
       </div>
-      <div class="helper-text">Tip: Kalau paket masih Starter, endpoint routing akan ditolak sampai upgrade ke Basic/Pro/Enterprise.</div>
+      <p class="helper-text">
+        Tip: Jika paket masih Starter, endpoint routing akan ditolak sampai upgrade ke Basic/Pro/Enterprise.
+      </p>
     </section>
   </main>
 
   <script src="/static/tool_common.js"></script>
   <script>
-    configureBackLink('nav_back')
-    const regResp = document.getElementById('reg_resp')
-    const statusResp = document.getElementById('status_resp')
-    const regStatus = document.getElementById('reg_status')
-    const statusStatus = document.getElementById('status_status')
+    const SVG_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
+    const SVG_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
+    const SVG_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
 
-    function setPending(el, text) {
-      el.className = 'response-status pending'
-      el.innerHTML = '<span>⏳</span> ' + text
-    }
+    configureBackLink('nav_back');
+    const regResp    = document.getElementById('reg_resp');
+    const statusResp = document.getElementById('status_resp');
+    const regStatus  = document.getElementById('reg_status');
+    const statusSt   = document.getElementById('status_status');
 
-    function setSuccess(el, text) {
-      el.className = 'response-status success'
-      el.innerHTML = '<span>✅</span> ' + text
-    }
-
-    function setError(el, text) {
-      el.className = 'response-status error'
-      el.innerHTML = '<span>❌</span> ' + text
-    }
+    function setPending(el, text) { el.className = 'response-status pending'; el.innerHTML = SVG_PEND + ' ' + text; }
+    function setSuccess(el, text) { el.className = 'response-status success'; el.innerHTML = SVG_OK   + ' ' + text; }
+    function setError(el, text)   { el.className = 'response-status error';   el.innerHTML = SVG_ERR  + ' ' + text; }
 
     document.getElementById('btn_register').addEventListener('click', async () => {
-      const appName = document.getElementById('reg_app_name').value.trim()
-      const paket = document.getElementById('reg_paket').value
+      const appName = document.getElementById('reg_app_name').value.trim();
+      const paket   = document.getElementById('reg_paket').value;
+      if (!appName) { setError(regStatus, 'Nama app wajib diisi'); regResp.textContent = '{"pesan":"Nama app wajib diisi"}'; return; }
 
-      if (!appName) {
-        setError(regStatus, 'Nama app wajib diisi')
-        regResp.textContent = '{"pesan":"Nama app wajib diisi"}'
-        return
-      }
-
-      setPending(regStatus, 'Mengirim register request...')
-      regResp.textContent = 'Loading...'
-
+      setPending(regStatus, 'Mengirim register request...');
+      regResp.textContent = 'Loading...';
       try {
-        const res = await fetch('/apps/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user_id: 'web', parameter: { app_name: appName, nama_paket: paket } })
-        })
-
-        const data = await res.json()
-        regResp.textContent = JSON.stringify(data, null, 2)
-
+        const res  = await fetch('/apps/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: 'web', parameter: { app_name: appName, nama_paket: paket } }) });
+        const data = await res.json();
+        regResp.textContent = JSON.stringify(data, null, 2);
         if (data && data.status === 'sukses') {
-          setSuccess(regStatus, 'Register berhasil')
-          if (data.data && data.data.api_key) {
-            document.getElementById('status_api_key').value = data.data.api_key
-          }
-        } else {
-          setError(regStatus, 'Register gagal')
-        }
-      } catch (e) {
-        setError(regStatus, 'Gagal konek ke server')
-        regResp.textContent = 'Error: ' + e
-      }
-    })
+          setSuccess(regStatus, 'Register berhasil');
+          if (data.data?.api_key) document.getElementById('status_api_key').value = data.data.api_key;
+        } else { setError(regStatus, 'Register gagal'); }
+      } catch (e) { setError(regStatus, 'Gagal konek ke server'); regResp.textContent = 'Error: ' + e; }
+    });
 
     document.getElementById('btn_check').addEventListener('click', async () => {
-      const key = document.getElementById('status_api_key').value.trim()
-      if (!key) {
-        setError(statusStatus, 'api_key wajib diisi')
-        statusResp.textContent = '{"pesan":"api_key wajib diisi"}'
-        return
-      }
+      const key = document.getElementById('status_api_key').value.trim();
+      if (!key) { setError(statusSt, 'api_key wajib diisi'); statusResp.textContent = '{"pesan":"api_key wajib diisi"}'; return; }
 
-      setPending(statusStatus, 'Mengambil status app...')
-      statusResp.textContent = 'Loading...'
-
+      setPending(statusSt, 'Mengambil status app...');
+      statusResp.textContent = 'Loading...';
       try {
-        const res = await fetch('/apps/status?api_key=' + encodeURIComponent(key))
-        const data = await res.json()
-        statusResp.textContent = JSON.stringify(data, null, 2)
-        if (data && data.status === 'sukses') {
-          setSuccess(statusStatus, 'Status app berhasil diambil')
-        } else {
-          setError(statusStatus, 'Status app gagal diambil')
-        }
-      } catch (e) {
-        setError(statusStatus, 'Gagal konek ke server')
-        statusResp.textContent = 'Error: ' + e
-      }
-    })
+        const res  = await fetch('/apps/status?api_key=' + encodeURIComponent(key));
+        const data = await res.json();
+        statusResp.textContent = JSON.stringify(data, null, 2);
+        if (data && data.status === 'sukses') { setSuccess(statusSt, 'Status app berhasil diambil'); }
+        else { setError(statusSt, 'Status app gagal diambil'); }
+      } catch (e) { setError(statusSt, 'Gagal konek ke server'); statusResp.textContent = 'Error: ' + e; }
+    });
   </script>
 </body>
 </html>

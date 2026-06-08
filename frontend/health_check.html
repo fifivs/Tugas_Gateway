@@ -3,27 +3,49 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Health Check - API Gateway</title>
+  <title>Health Check — API Gateway</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
-    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    @media (max-width: 860px) { .form-row { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
   <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
   <main class="tool-shell">
     <header class="page-header">
-      <h2>❤️ Health Check Sender</h2>
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </span>
+        Health Check Sender
+      </h2>
       <p>Kirim health status manual ke endpoint monitor health-check.</p>
     </header>
+
     <div class="tool-topbar">
-      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
-      <a class="btn btn-outline" href="/monitor">📡 Monitor</a>
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Kembali ke Beranda
+      </a>
+      <a class="btn btn-outline" href="/monitor">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Monitor
+      </a>
     </div>
 
     <section class="glass-card">
-      <div class="card-header"><div class="card-title"><span class="icon">📝</span> Form Health Check</div></div>
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </span>
+          Form Health Check
+        </div>
+      </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="app_name">App Name</label>
@@ -34,16 +56,21 @@
           <input class="form-input" id="endpoint" value="/health" />
         </div>
       </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="status">Status</label>
-          <select class="form-input" id="status"><option>online</option><option>offline</option></select>
+          <select class="form-input" id="status">
+            <option>online</option>
+            <option>offline</option>
+          </select>
         </div>
         <div class="form-group">
           <label class="form-label" for="response_time_ms">Response Time (ms)</label>
           <input class="form-input" type="number" id="response_time_ms" value="120" />
         </div>
       </div>
+
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="status_code">Status Code</label>
@@ -55,10 +82,18 @@
         </div>
       </div>
 
-      <button class="btn btn-success" id="btn_send">🚀 Kirim Health Check</button>
+      <button class="btn btn-success" id="btn_send">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Kirim Health Check
+      </button>
 
-      <div class="response-panel" style="margin-top: 16px;">
-        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+      <div class="response-panel" style="margin-top: 18px;">
+        <div class="response-header">
+          <div class="response-status" id="status_line">
+            <span class="status-pill"></span>
+            Response
+          </div>
+        </div>
         <div class="response-body" id="resp">-</div>
       </div>
     </section>
@@ -66,41 +101,42 @@
 
   <script src="/static/tool_common.js"></script>
   <script>
-    configureBackLink('nav_back')
-    const resp = document.getElementById('resp')
-    const statusLine = document.getElementById('status_line')
+    const SVG_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
+    const SVG_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
+    const SVG_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
+
+    configureBackLink('nav_back');
+    const resp       = document.getElementById('resp');
+    const statusLine = document.getElementById('status_line');
 
     function setState(type, text) {
-      statusLine.className = 'response-status ' + type
-      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
-      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+      const dot = type === 'success' ? SVG_OK : type === 'error' ? SVG_ERR : SVG_PEND;
+      statusLine.className = 'response-status ' + type;
+      statusLine.innerHTML = dot + ' ' + text;
     }
 
     document.getElementById('btn_send').addEventListener('click', async () => {
       const payload = {
         user_id: 'monitor',
         parameter: {
-          app_name: document.getElementById('app_name').value.trim(),
-          endpoint: document.getElementById('endpoint').value.trim(),
-          status: document.getElementById('status').value,
+          app_name:        document.getElementById('app_name').value.trim(),
+          endpoint:        document.getElementById('endpoint').value.trim(),
+          status:          document.getElementById('status').value,
           response_time_ms: Number(document.getElementById('response_time_ms').value || 0),
-          status_code: Number(document.getElementById('status_code').value || 0),
-          error_message: document.getElementById('error_message').value.trim() || null
+          status_code:     Number(document.getElementById('status_code').value || 0),
+          error_message:   document.getElementById('error_message').value.trim() || null
         }
-      }
-      setState('pending', 'Sending...')
-      resp.textContent = 'Loading...'
+      };
+      setState('pending', 'Sending...');
+      resp.textContent = 'Loading...';
       try {
-        const r = await fetch('/monitor/health-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
-        const data = await r.json()
-        resp.textContent = JSON.stringify(data, null, 2)
-        if (data.status === 'sukses') setState('success', 'Health check terkirim')
-        else setState('error', 'Health check gagal')
-      } catch (e) {
-        setState('error', 'Error koneksi')
-        resp.textContent = 'Error: ' + e
-      }
-    })
+        const r    = await fetch('/monitor/health-check', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const data = await r.json();
+        resp.textContent = JSON.stringify(data, null, 2);
+        if (data.status === 'sukses') setState('success', 'Health check terkirim');
+        else setState('error', 'Health check gagal');
+      } catch (e) { setState('error', 'Error koneksi'); resp.textContent = 'Error: ' + e; }
+    });
   </script>
 </body>
 </html>

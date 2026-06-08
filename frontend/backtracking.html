@@ -1,0 +1,792 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Backtracking Routing - API Gateway UMKM</title>
+  <meta name="description" content="Visualisasi algoritma backtracking untuk routing failover pada API Gateway ekosistem UMKM" />
+  <link rel="stylesheet" href="/static/style.css">
+  <style>
+    .tool-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 20px 48px;
+    }
+    .tool-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* ===== BACKTRACKING TRACE VISUALIZER ===== */
+    .trace-container {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      padding: 24px 12px;
+      overflow-x: auto;
+      flex-wrap: nowrap;
+    }
+    .trace-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.03);
+      border: 2px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      min-width: 160px;
+      max-width: 200px;
+      text-align: center;
+      transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0;
+      transform: scale(0.8) translateY(10px);
+      position: relative;
+    }
+    .trace-step.visible {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+    .trace-step.sukses {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.08);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+    }
+    .trace-step.gagal {
+      border-color: var(--accent-rose);
+      background: rgba(244, 63, 94, 0.06);
+    }
+    .trace-step.backtrack {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.06);
+    }
+    .trace-step .step-num {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+    .trace-step .step-icon {
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .trace-step .step-label-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: capitalize;
+    }
+    .trace-step .step-url {
+      font-size: 10px;
+      color: var(--text-muted);
+      word-break: break-all;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      line-height: 1.3;
+    }
+    .trace-step .step-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+    .trace-step .step-badge.s-success {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-emerald);
+    }
+    .trace-step .step-badge.s-fail {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--accent-rose);
+    }
+    .trace-step .step-badge.s-backtrack {
+      background: rgba(245, 158, 11, 0.2);
+      color: var(--accent-amber);
+    }
+    .trace-step .step-action {
+      font-size: 10px;
+      color: var(--text-secondary);
+      font-style: italic;
+      margin-top: 2px;
+    }
+    .trace-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 40px;
+      font-size: 22px;
+      color: var(--text-muted);
+      opacity: 0;
+      transition: all 0.4s ease;
+    }
+    .trace-arrow.visible {
+      opacity: 1;
+    }
+    .trace-arrow.arrow-backtrack {
+      color: var(--accent-amber);
+    }
+
+    /* ===== ROUTE CANDIDATES TABLE ===== */
+    .candidates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .candidate-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      transition: var(--transition);
+    }
+    .candidate-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      transform: translateY(-2px);
+    }
+    .candidate-card .cc-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .candidate-card .cc-app-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      text-transform: capitalize;
+    }
+    .candidate-card .cc-count {
+      font-size: 11px;
+      font-weight: 600;
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple);
+      padding: 2px 8px;
+      border-radius: 20px;
+    }
+    .candidate-card .cc-list {
+      list-style: none;
+      padding: 0;
+    }
+    .candidate-card .cc-list li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 12px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .candidate-card .cc-list li:last-child {
+      border-bottom: none;
+    }
+    .cc-priority {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+    .cc-label-tag {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .cc-label-tag.primary { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
+    .cc-label-tag.mirror { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
+    .cc-label-tag.fallback { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+
+    /* ===== STATS SECTION ===== */
+    .stats-mini-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .stat-mini {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      text-align: center;
+    }
+    .stat-mini .sm-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .stat-mini .sm-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* ===== ALGO EXPLANATION ===== */
+    .algo-box {
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .algo-box h4 {
+      color: var(--accent-blue);
+      font-size: 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .algo-box pre {
+      background: rgba(0,0,0,0.3);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .algo-box .pseudocode-keyword { color: var(--accent-purple); font-weight: 600; }
+    .algo-box .pseudocode-comment { color: var(--text-muted); font-style: italic; }
+    .algo-box .pseudocode-fn { color: var(--accent-cyan); }
+    .algo-box .pseudocode-str { color: var(--accent-emerald); }
+
+    /* ===== SELECT DROPDOWN ===== */
+    select.form-input {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' stroke='%2394a3b8' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+    select.form-input option {
+      background: #1e293b;
+      color: var(--text-primary);
+    }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+    }
+    .empty-state .empty-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 12px;
+      opacity: 0.4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .empty-state .empty-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--text-muted);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    @media (max-width: 860px) {
+      .form-row,
+      .candidates-grid { grid-template-columns: 1fr; }
+      .trace-container { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <main class="tool-shell">
+    <!-- HEADER -->
+    <header class="page-header">
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        </span>
+        Backtracking Routing Failover
+      </h2>
+      <p>Algoritma backtracking untuk resilient routing — otomatis coba route alternatif ketika app target gagal.</p>
+    </header>
+
+    <div class="tool-topbar">
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Beranda
+      </a>
+      <a class="btn btn-outline" href="/dashboard">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+        Routing Biasa
+      </a>
+      <a class="btn btn-outline" href="/docs" target="_blank">
+        <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        API Docs
+      </a>
+    </div>
+
+    <!-- ALGORITHM EXPLANATION -->
+    <div class="algo-box">
+      <h4>
+        <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:middle;"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Pseudocode Algoritma Backtracking
+      </h4>
+      <pre><span class="pseudocode-keyword">function</span> <span class="pseudocode-fn">backtracking_route</span>(app_id, data, candidates, index=0, trace=[]):
+    <span class="pseudocode-comment">// BASE CASE: semua kandidat sudah dicoba</span>
+    <span class="pseudocode-keyword">if</span> index >= len(candidates):
+        <span class="pseudocode-keyword">return</span> <span class="pseudocode-str">"GAGAL — semua route exhausted"</span>
+
+    candidate = candidates[index]
+
+    <span class="pseudocode-keyword">try</span>:
+        result = <span class="pseudocode-fn">send_request</span>(candidate.url, data)
+        <span class="pseudocode-keyword">return</span> <span class="pseudocode-str">"SUKSES"</span> + trace     <span class="pseudocode-comment">// Solusi ditemukan!</span>
+
+    <span class="pseudocode-keyword">except</span> (ConnectError, Timeout):
+        trace.append(<span class="pseudocode-str">"GAGAL → BACKTRACK"</span>)
+        <span class="pseudocode-comment">// RECURSIVE CALL — backtrack ke kandidat berikutnya</span>
+        <span class="pseudocode-keyword">return</span> <span class="pseudocode-fn">backtracking_route</span>(app_id, data, candidates, index+1, trace)</pre>
+    </div>
+
+    <!-- ROUTE CANDIDATES TABLE -->
+    <section class="glass-card" id="section-candidates">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg></span>
+          Routing Table — Route Candidates
+        </div>
+        <button class="btn btn-outline" onclick="loadCandidates()" id="btn_refresh_candidates">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 14px;">
+        Setiap app punya beberapa route candidate (primary → mirror → fallback). Backtracking akan mencoba secara berurutan.
+      </p>
+      <div class="candidates-grid" id="candidates_grid">
+        <div class="empty-state">
+          <div class="empty-icon"><svg viewBox="0 0 24 24"><path d="M5.07 5.07a12 12 0 0 0 0 13.86"/><path d="M1.42 1.42a19 19 0 0 0 0 21.16"/><path d="M18.93 5.07a12 12 0 0 1 0 13.86"/><path d="M22.58 1.42a19 19 0 0 1 0 21.16"/><circle cx="12" cy="12" r="2"/></svg></div>
+          <p>Memuat route candidates...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEST PANEL -->
+    <section class="glass-card" id="section-test">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></span>
+          Test Backtracking Routing
+        </div>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 14px;">
+        Kirim request ke app target — Gateway akan menjalankan algoritma backtracking secara otomatis.
+      </p>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="bt_target_app">Target App</label>
+          <select class="form-input" id="bt_target_app">
+            <option value="smartbank">SmartBank (Kelompok 1)</option>
+            <option value="marketplace">Marketplace (Kelompok 2)</option>
+            <option value="pos">POS (Kelompok 3)</option>
+            <option value="supplierhub">SupplierHub (Kelompok 4)</option>
+            <option value="logistikita">LogistikIta (Kelompok 5)</option>
+            <option value="umkminsight">UMKM Insight (Kelompok 6)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bt_user_id">User ID</label>
+          <input class="form-input" id="bt_user_id" value="user_backtrack_test" placeholder="user123" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="bt_amount">Amount (Rp)</label>
+          <input class="form-input" id="bt_amount" type="number" value="50000" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="bt_token">JWT Token</label>
+          <input class="form-input" id="bt_token" placeholder="Tempel token JWT di sini..." />
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px;">
+        <button class="btn btn-primary" id="btn_test_backtrack">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Jalankan Backtracking
+        </button>
+        <button class="btn btn-outline" id="btn_gen_token">
+          <svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+          Generate Token Cepat
+        </button>
+      </div>
+    </section>
+
+    <!-- TRACE VISUALIZER -->
+    <section class="glass-card" id="section-trace" style="display: none;">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          Trace Backtracking — Step by Step
+        </div>
+        <div id="trace_summary" style="font-size: 13px; color: var(--text-secondary);"></div>
+      </div>
+      <div class="trace-container" id="trace_visual"></div>
+    </section>
+
+    <!-- RESPONSE JSON -->
+    <section class="glass-card" id="section-response" style="display: none;">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+          Response JSON
+        </div>
+        <div class="response-status" id="bt_status"><span class="status-pill" style="background:var(--text-muted);"></span> Menunggu request...</div>
+      </div>
+      <div class="response-panel" style="margin-top: 0;">
+        <div class="response-body" id="bt_response">-</div>
+      </div>
+    </section>
+
+    <!-- STATISTICS -->
+    <section class="glass-card" id="section-stats">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          Statistik Backtracking
+        </div>
+        <button class="btn btn-outline" onclick="loadStats()" id="btn_refresh_stats">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
+      </div>
+      <div class="stats-mini-grid" id="stats_grid">
+        <div class="stat-mini"><div class="sm-value" id="st_total">—</div><div class="sm-label">Total Request</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_sukses">—</div><div class="sm-label">Sukses</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_gagal">—</div><div class="sm-label">Gagal</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_rate">—</div><div class="sm-label">Success Rate</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_bt_count">—</div><div class="sm-label">Backtrack Events</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_avg_att">—</div><div class="sm-label">Avg Attempts</div></div>
+        <div class="stat-mini"><div class="sm-value" id="st_avg_ms">—</div><div class="sm-label">Avg Response (ms)</div></div>
+      </div>
+    </section>
+
+    <!-- RECENT HISTORY -->
+    <section class="glass-card" id="section-history">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          Riwayat Backtracking Terbaru
+        </div>
+      </div>
+      <div style="overflow-x: auto;">
+        <table class="data-table" id="history_table">
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>User</th>
+              <th>Target App</th>
+              <th>Attempts</th>
+              <th>Route Used</th>
+              <th>Status</th>
+              <th>Resp (ms)</th>
+            </tr>
+          </thead>
+          <tbody id="history_body">
+            <tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding: 30px;">Belum ada data. Jalankan test backtracking di atas.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="/static/tool_common.js"></script>
+  <script>
+    // ========================================
+    // BACKTRACKING FRONTEND — JavaScript
+    // ========================================
+
+    configureBackLink('nav_back');
+
+    // --- Load Route Candidates ---
+    async function loadCandidates() {
+      const grid = document.getElementById('candidates_grid');
+      grid.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><p>Memuat...</p></div>';
+      try {
+        const res = await fetch('/integrator/route-candidates');
+        const json = await res.json();
+        const apps = json.data || [];
+        if (apps.length === 0) {
+          grid.innerHTML = '<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><p>Tidak ada route candidates.</p></div>';
+          return;
+        }
+        grid.innerHTML = apps.map(app => {
+          const rows = app.candidates.map(c => {
+            const labelClass = c.label === 'primary' ? 'primary' : c.label === 'mirror' ? 'mirror' : 'fallback';
+            return `<li>
+              <span class="cc-priority">${c.priority}</span>
+              <span class="cc-label-tag ${labelClass}">${c.label}</span>
+              <span style="font-family: monospace; font-size: 11px; color: var(--text-muted); word-break: break-all;">${c.url}</span>
+            </li>`;
+          }).join('');
+          return `<div class="candidate-card">
+            <div class="cc-header">
+              <span style="display:flex;align-items:center;"><svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:var(--accent-blue-light);fill:none;stroke-width:2;"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span>
+              <span class="cc-app-name">${app.app_id}</span>
+              <span class="cc-count">${app.total_candidates} routes</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">${app.kelompok} — ${app.peran}</div>
+            <ul class="cc-list">${rows}</ul>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><p>Error: ${e.message}</p></div>`;
+      }
+    }
+
+    // --- Generate Token ---
+    document.getElementById('btn_gen_token').addEventListener('click', async () => {
+      const userId = document.getElementById('bt_user_id').value.trim() || 'user_backtrack_test';
+      try {
+        const res = await fetch(`/generate_token_tester/${encodeURIComponent(userId)}`);
+        const json = await res.json();
+        const token = json.token_buat_ngetes;
+        document.getElementById('bt_token').value = token;
+      } catch (e) {
+        alert('Gagal generate token: ' + e.message);
+      }
+    });
+
+    // --- Trace Visualizer ---
+    function renderTrace(trace, finalStatus) {
+      const container = document.getElementById('trace_visual');
+      const section = document.getElementById('section-trace');
+      const summary = document.getElementById('trace_summary');
+      section.style.display = 'block';
+      container.innerHTML = '';
+
+      if (!trace || trace.length === 0) {
+        container.innerHTML = '<div class="empty-state"><p>Tidak ada trace data.</p></div>';
+        return;
+      }
+
+      const backtrackCount = trace.filter(s => s.status === 'GAGAL_BACKTRACK').length;
+      const successStep = trace.find(s => s.status === 'SUKSES');
+
+      summary.innerHTML = finalStatus === 'sukses'
+        ? `<span style="color:var(--accent-emerald); font-weight:600;">Berhasil di step #${successStep?.step || '?'} (${successStep?.label || '?'}) — ${backtrackCount} backtrack</span>`
+        : `<span style="color:var(--accent-rose); font-weight:600;">Semua ${trace.length} route gagal — ${backtrackCount} backtrack terjadi</span>`;
+
+      trace.forEach((step, i) => {
+        // Arrow between steps
+        if (i > 0) {
+          const arrow = document.createElement('div');
+          arrow.className = 'trace-arrow';
+          if (trace[i - 1].status === 'GAGAL_BACKTRACK') {
+            arrow.className += ' arrow-backtrack';
+            arrow.innerHTML = '<svg viewBox="0 0 24 24" style="width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;"><path d="m9 18 6-6-6-6"/></svg>';
+          } else {
+            arrow.innerHTML = '<svg viewBox="0 0 24 24" style="width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+          }
+          container.appendChild(arrow);
+          setTimeout(() => arrow.classList.add('visible'), i * 400 + 200);
+        }
+
+        const el = document.createElement('div');
+        const isSukses = step.status === 'SUKSES';
+        const isBacktrack = step.status === 'GAGAL_BACKTRACK';
+        el.className = 'trace-step ' + (isSukses ? 'sukses' : isBacktrack ? 'backtrack' : 'gagal');
+
+        const iconSvg = isSukses
+          ? '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--accent-emerald);fill:none;stroke-width:2.5;"><polyline points="20 6 9 17 4 12"/></svg>'
+          : isBacktrack
+          ? '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--accent-amber);fill:none;stroke-width:2;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>'
+          : '<svg viewBox="0 0 24 24" style="width:22px;height:22px;stroke:var(--accent-rose);fill:none;stroke-width:2.5;"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>';
+        const badgeClass = isSukses ? 's-success' : isBacktrack ? 's-backtrack' : 's-fail';
+        const badgeText = isSukses ? 'SUKSES' : isBacktrack ? 'BACKTRACK' : 'GAGAL';
+
+        el.innerHTML = `
+          <div class="step-num">Step #${step.step}</div>
+          <div class="step-icon">${iconSvg}</div>
+          <div class="step-label-name">${step.label}</div>
+          <div class="step-url">${step.url || '-'}</div>
+          <div class="step-badge ${badgeClass}">${badgeText}</div>
+          ${step.error ? `<div class="step-action">${step.error}</div>` : ''}
+          ${step.aksi ? `<div class="step-action">${step.aksi}</div>` : ''}
+        `;
+        container.appendChild(el);
+
+        // Animate in with stagger
+        setTimeout(() => el.classList.add('visible'), i * 400 + 100);
+      });
+
+      // Scroll into view
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // --- Test Backtracking ---
+    document.getElementById('btn_test_backtrack').addEventListener('click', async () => {
+      const targetApp = document.getElementById('bt_target_app').value;
+      const userId = document.getElementById('bt_user_id').value.trim() || 'user_backtrack_test';
+      const amount = Number(document.getElementById('bt_amount').value || 0);
+      const token = document.getElementById('bt_token').value.trim();
+
+      const statusEl = document.getElementById('bt_status');
+      const respEl = document.getElementById('bt_response');
+      const respSection = document.getElementById('section-response');
+
+      const PILL_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
+      const PILL_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
+      const PILL_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
+
+      if (!token) {
+        statusEl.className = 'response-status error';
+        statusEl.innerHTML = PILL_ERR + ' Generate token dulu!';
+        respSection.style.display = 'block';
+        respEl.textContent = '{"pesan": "Token JWT wajib diisi. Klik Generate Token Cepat."}';
+        return;
+      }
+
+      // Loading state
+      statusEl.className = 'response-status pending';
+      statusEl.innerHTML = PILL_PEND + ' Menjalankan backtracking...';
+      respSection.style.display = 'block';
+      respEl.textContent = 'Mengirim request dan menjalankan algoritma backtracking...';
+
+      // Hide trace while loading
+      document.getElementById('section-trace').style.display = 'none';
+
+      const btn = document.getElementById('btn_test_backtrack');
+      btn.disabled = true;
+      btn.innerHTML = '<div class="spinner"></div> Processing...';
+
+      const payload = {
+        user_id: userId,
+        parameter: {
+          token: token,
+          target_app: targetApp,
+          amount: amount,
+          source_app: 'backtracking_tester'
+        }
+      };
+
+      try {
+        const res = await fetch('/integrator/routing_backtracking', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        respEl.textContent = JSON.stringify(data, null, 2);
+
+        if (data.status === 'sukses') {
+          statusEl.className = 'response-status success';
+          statusEl.innerHTML = PILL_OK + ` Routing SUKSES via ${data.data?.route_used || 'unknown'} (${data.data?.total_attempts || '?'} attempt)`;
+        } else {
+          statusEl.className = 'response-status error';
+          statusEl.innerHTML = PILL_ERR + ` Routing GAGAL setelah ${data.data?.total_attempts || '?'} attempts`;
+        }
+
+        // Render trace visualization
+        const trace = data.data?.trace || [];
+        renderTrace(trace, data.status);
+
+        // Refresh stats
+        setTimeout(loadStats, 500);
+
+      } catch (e) {
+        statusEl.className = 'response-status error';
+        statusEl.innerHTML = PILL_ERR + ' Gagal konek ke server';
+        respEl.textContent = 'Error: ' + e.message;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Jalankan Backtracking';
+      }
+    });
+
+    // --- Load Statistics ---
+    async function loadStats() {
+      try {
+        const res = await fetch('/monitor/backtracking-stats');
+        const json = await res.json();
+        const d = json.data || {};
+
+        document.getElementById('st_total').textContent = d.total_requests ?? '—';
+        document.getElementById('st_sukses').textContent = d.sukses ?? '—';
+        document.getElementById('st_gagal').textContent = d.gagal ?? '—';
+        document.getElementById('st_rate').textContent = d.success_rate != null ? d.success_rate + '%' : '—';
+        document.getElementById('st_bt_count').textContent = d.backtrack_count ?? '—';
+        document.getElementById('st_avg_att').textContent = d.avg_attempts ?? '—';
+        document.getElementById('st_avg_ms').textContent = d.avg_response_ms != null ? Math.round(d.avg_response_ms) + 'ms' : '—';
+
+        // Render recent history
+        const tbody = document.getElementById('history_body');
+        const logs = d.recent_logs || [];
+        if (logs.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color: var(--text-muted); padding: 30px;">Belum ada data.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = logs.map(log => {
+          const statusBadge = log.final_status === 'sukses'
+            ? '<span class="badge badge-success">Sukses</span>'
+            : '<span class="badge badge-error">Gagal</span>';
+          const time = log.timestamp ? new Date(log.timestamp).toLocaleString('id-ID') : '-';
+          return `<tr>
+            <td style="font-size: 12px; white-space: nowrap;">${time}</td>
+            <td>${log.user_id || '-'}</td>
+            <td style="text-transform: capitalize; font-weight: 600;">${log.target_app || '-'}</td>
+            <td style="text-align: center;">${log.total_attempts || 0} / ${log.total_candidates || 0}</td>
+            <td><span class="badge badge-info">${log.route_used || 'none'}</span></td>
+            <td>${statusBadge}</td>
+            <td style="text-align: right;">${log.response_time_ms || 0}ms</td>
+          </tr>`;
+        }).join('');
+
+      } catch (e) {
+        console.error('Failed to load stats:', e);
+      }
+    }
+
+    // --- Init on page load ---
+    loadCandidates();
+    loadStats();
+  </script>
+</body>
+</html>

@@ -3,87 +3,132 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pricing Plans - API Gateway</title>
+  <title>Pricing Plans — API Gateway</title>
   <link rel="stylesheet" href="/static/style.css">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 28px 20px 48px; }
-    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
-    .plan-card { background: var(--bg-card); border: 1px solid var(--border-glass); border-radius: var(--radius-lg); padding: 18px; }
-    .plan-name { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-    .plan-price { font-size: 24px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 10px; }
-    .plan-line { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
-    .badge { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 999px; padding: 3px 8px; background: rgba(59,130,246,0.15); color: var(--accent-blue); }
+    .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+    .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .plan-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 22px 20px;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+    }
+    .plan-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gradient-primary);
+    }
+    .plan-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.25); box-shadow: var(--shadow-md); }
+    .plan-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); }
+    .plan-price { font-size: 22px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 14px; }
+    .plan-line { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+    .plan-line-icon { width: 16px; height: 16px; stroke: var(--accent-emerald); fill: none; stroke-width: 2.5; flex-shrink: 0; }
   </style>
 </head>
 <body>
   <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
+
   <main class="tool-shell">
     <header class="page-header">
-      <h2>📦 Pricing Plans</h2>
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+        </span>
+        Pricing Plans
+      </h2>
       <p>Lihat daftar paket langganan gateway dan fitur aksesnya.</p>
     </header>
+
     <div class="tool-topbar">
-      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
-      <a class="btn btn-outline" href="/apps/manage">🧩 Apps</a>
-      <a class="btn btn-outline" href="/integrator/manage/routing">🔀 Routing</a>
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Kembali ke Beranda
+      </a>
+      <a class="btn btn-outline" href="/apps/manage">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+        Apps
+      </a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+        Routing
+      </a>
     </div>
 
     <section class="glass-card">
       <div class="card-header">
-        <div class="card-title"><span class="icon">📋</span> Daftar Paket</div>
-        <button class="btn btn-primary" id="btn_load">🔄 Refresh</button>
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </span>
+          Daftar Paket
+        </div>
+        <button class="btn btn-outline" id="btn_load">
+          <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
       </div>
       <div class="plans-grid" id="plans_grid"></div>
     </section>
 
     <section class="glass-card">
-      <div class="card-header"><div class="card-title"><span class="icon">🧪</span> Raw Response</div></div>
-      <div class="response-panel"><div class="response-body" id="raw">-</div></div>
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </span>
+          Raw Response
+        </div>
+      </div>
+      <div class="response-panel">
+        <div class="response-body" id="raw">-</div>
+      </div>
     </section>
   </main>
 
   <script src="/static/tool_common.js"></script>
   <script>
-    configureBackLink('nav_back')
-    const grid = document.getElementById('plans_grid')
-    const raw = document.getElementById('raw')
+    configureBackLink('nav_back');
+    const grid = document.getElementById('plans_grid');
+    const raw  = document.getElementById('raw');
 
-    function boolLabel(v) { return v ? 'Yes' : 'No' }
+    const checkSVG = `<svg class="plan-line-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>`;
+    const crossSVG = `<svg class="plan-line-icon" viewBox="0 0 24 24" style="stroke:var(--text-muted);"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`;
 
-    async function loadPlans() {
-      raw.textContent = 'Loading...'
-      grid.innerHTML = ''
-      try {
-        const res = await fetch('/paket/list')
-        const data = await res.json()
-        raw.textContent = JSON.stringify(data, null, 2)
-        const plans = (data && data.data) || []
-        if (!plans.length) {
-          grid.innerHTML = '<div class="plan-card"><div class="plan-line">Belum ada data paket.</div></div>'
-          return
-        }
-        plans.forEach((p) => {
-          const el = document.createElement('div')
-          el.className = 'plan-card'
-          el.innerHTML = `
-            <div class="plan-name">${p.nama_paket}</div>
-            <div class="plan-price">Rp ${Number(p.harga_per_bulan).toLocaleString('id-ID')}/bln</div>
-            <div class="plan-line"><span class="badge">Quota</span> ${p.quota_label || p.quota_per_bulan}</div>
-            <div class="plan-line">Fee: ${p.fee_transaksi_persen}%</div>
-            <div class="plan-line">Routing: ${boolLabel(p.akses_routing)}</div>
-            <div class="plan-line">Monitor: ${boolLabel(p.akses_monitor)}</div>
-            <div class="plan-line">Validasi: ${boolLabel(p.akses_validasi)}</div>
-          `
-          grid.appendChild(el)
-        })
-      } catch (e) {
-        raw.textContent = 'Error: ' + e
-      }
+    function boolLine(v, label) {
+      return `<div class="plan-line">${v ? checkSVG : crossSVG}<span>${label}: ${v ? 'Ya' : 'Tidak'}</span></div>`;
     }
 
-    document.getElementById('btn_load').addEventListener('click', loadPlans)
-    loadPlans()
+    async function loadPlans() {
+      raw.textContent = 'Loading...';
+      grid.innerHTML  = '<div style="color:var(--text-muted); font-size:13px;">Memuat paket...</div>';
+      try {
+        const res   = await fetch('/paket/list');
+        const data  = await res.json();
+        raw.textContent = JSON.stringify(data, null, 2);
+        const plans = (data && data.data) || [];
+        if (!plans.length) { grid.innerHTML = '<div class="plan-card"><div class="plan-line">Belum ada data paket.</div></div>'; return; }
+        grid.innerHTML = plans.map(p => `
+          <div class="plan-card">
+            <div class="plan-name">${p.nama_paket}</div>
+            <div class="plan-price">Rp ${Number(p.harga_per_bulan).toLocaleString('id-ID')}<span style="font-size:13px; font-weight:400; color:var(--text-muted);">/bln</span></div>
+            <div class="plan-line"><span class="badge badge-info">${p.quota_label || p.quota_per_bulan}</span></div>
+            <div class="plan-line" style="color:var(--text-muted);">Fee: ${p.fee_transaksi_persen}%</div>
+            ${boolLine(p.akses_routing, 'Routing')}
+            ${boolLine(p.akses_monitor, 'Monitor')}
+            ${boolLine(p.akses_validasi, 'Validasi')}
+          </div>`).join('');
+      } catch (e) { raw.textContent = 'Error: ' + e; }
+    }
+
+    document.getElementById('btn_load').addEventListener('click', loadPlans);
+    loadPlans();
   </script>
 </body>
 </html>

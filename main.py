@@ -18,9 +18,11 @@ from services.log_service import (
     kurangi_quota,
     tambah_fee_app,
     get_status_app,
-    upgrade_paket_app
+    upgrade_paket_app,
+    catat_backtracking_log,
+    get_backtracking_stats
 )
-from services.routing_service import teruskan_ke_smartbank, teruskan_ke_app, get_daftar_app
+from services.routing_service import teruskan_ke_smartbank, teruskan_ke_app, get_daftar_app, route_dengan_backtracking, get_route_candidates_info
 from collections import defaultdict
 import time
 import os
@@ -330,6 +332,117 @@ async def upgrade_app(req: RequestFormat):
     hasil = await upgrade_paket_app(api_key, paket_baru)
     status = "sukses" if hasil.get("sukses") else "gagal"
     return ResponseFormat(status=status, data=hasil)
+
+
+# ==========================================
+# BACKTRACKING ROUTING — Algoritma Backtracking
+# ==========================================
+
+@app.get("/integrator/backtracking/manage")
+def serve_backtracking_manage():
+    return FileResponse(os.path.join(frontend_dir, "backtracking.html"))
+
+
+@app.post("/integrator/routing_backtracking", response_model=ResponseFormat)
+async def routing_backtracking(req: RequestFormat):
+    """
+    Forward request ke app target menggunakan ALGORITMA BACKTRACKING.
+    Jika route utama gagal, otomatis backtrack ke route alternatif.
+    Wajib isi 'target_app' di parameter.
+    """
+    start_time = time.time()
+
+    # Rate limit check
+    rl_ok, rl_pesan = check_rate_limit(req.user_id)
+    if not rl_ok:
+        return ResponseFormat(status="gagal", data={"pesan": rl_pesan, "kode": "RATE_LIMIT"})
+
+    # Validasi JWT
+    token = req.parameter.get("token", "") if req.parameter else ""
+    auth = verifikasi_token(token)
+    if not auth["valid"]:
+        return ResponseFormat(status="gagal", data={"pesan": auth["pesan"]})
+
+    # Ambil target app
+    target_app = req.parameter.get("target_app", "") if req.parameter else ""
+    target_endpoint = req.parameter.get("target_endpoint", None) if req.parameter else None
+
+    if not target_app:
+        return ResponseFormat(status="gagal", data={
+            "pesan": "'target_app' wajib diisi di dalam parameter.",
+            "pilihan_app": ["smartbank", "marketplace", "pos", "supplierhub", "logistikita", "umkminsight"],
+            "contoh": {
+                "user_id": "user123",
+                "parameter": {
+                    "token": "...",
+                    "target_app": "marketplace",
+                    "amount": 50000
+                }
+            }
+        })
+
+    # Validasi amount (jika ada)
+    raw_amount = req.parameter.get("amount", 0) if req.parameter else 0
+    amount_valid, amount_pesan, amount = validasi_amount(raw_amount)
+    if not amount_valid:
+        return ResponseFormat(status="gagal", data={"pesan": amount_pesan, "kode": "INVALID_AMOUNT"})
+
+    # Hitung fee Gateway
+    fee = hitung_fee_gateway(amount)
+
+    # Log request
+    await catat_log_mongo(req.user_id, f"/integrator/routing_backtracking → {target_app}", req.parameter)
+
+    # Forward dengan ALGORITMA BACKTRACKING
+    data_forward = {
+        "user_id": req.user_id,
+        "amount": amount,
+        "fee_gateway": fee,
+        "source": "API_Gateway_Backtracking",
+        "metadata": req.parameter
+    }
+    hasil = await route_dengan_backtracking(target_app, data_forward, target_endpoint)
+
+    elapsed_ms = int((time.time() - start_time) * 1000)
+
+    # Catat backtracking log
+    await catat_backtracking_log(
+        user_id=req.user_id,
+        target_app=target_app,
+        total_candidates=hasil.get("total_candidates", len(hasil.get("trace", []))),
+        total_attempts=hasil.get("total_attempts", 0),
+        route_used=hasil.get("route_used", "none"),
+        final_status=hasil.get("status", "gagal"),
+        trace=hasil.get("trace", []),
+        response_time_ms=elapsed_ms
+    )
+
+    return ResponseFormat(status=hasil.get("status", "gagal"), data={
+        "algoritma": "backtracking",
+        "target_app": target_app,
+        "route_used": hasil.get("route_used", "none"),
+        "route_url": hasil.get("route_url", "-"),
+        "total_attempts": hasil.get("total_attempts", 0),
+        "total_candidates": hasil.get("total_candidates", 0),
+        "fee_gateway": fee,
+        "response_time_ms": elapsed_ms,
+        "trace": hasil.get("trace", []),
+        "respons_dari_app": hasil.get("data", hasil.get("pesan", "No response"))
+    })
+
+
+@app.get("/monitor/backtracking-stats")
+async def backtracking_stats_endpoint():
+    """Lihat statistik dan riwayat backtracking routing"""
+    data = await get_backtracking_stats()
+    return {"status": "sukses", "data": data}
+
+
+@app.get("/integrator/route-candidates")
+def route_candidates_endpoint():
+    """Lihat routing table backtracking — semua candidates per app"""
+    data = get_route_candidates_info()
+    return {"status": "sukses", "data": data}
 
 
 # ==========================================

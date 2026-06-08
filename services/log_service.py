@@ -128,6 +128,8 @@ async def init_db():
 
         conn.close()
         print("[OK] Database TugasGateway & semua tabel siap!")
+        # Buat tabel backtracking_log
+        await init_backtracking_table()
     except Exception as e:
         print(f"[ERROR] Gagal init database: {e}")
 
@@ -533,3 +535,143 @@ async def upgrade_paket_app(api_key: str, paket_baru: str):
     except Exception as e:
         print(f"[ERROR] Gagal upgrade paket: {e}")
         return {"sukses": False, "pesan": str(e)}
+
+
+# ==========================================
+# FUNGSI BACKTRACKING — Logging & Statistik
+# ==========================================
+
+async def init_backtracking_table():
+    """Buat tabel backtracking_log kalau belum ada (dipanggil dari init_db)"""
+    try:
+        conn = await get_conn()
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                CREATE TABLE IF NOT EXISTS backtracking_log (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    timestamp DATETIME,
+                    user_id VARCHAR(100),
+                    target_app VARCHAR(100),
+                    total_candidates INT,
+                    total_attempts INT,
+                    route_used VARCHAR(50),
+                    final_status VARCHAR(20),
+                    trace JSON,
+                    response_time_ms INT
+                )
+            """)
+        conn.close()
+        print("[OK] Tabel backtracking_log siap!")
+    except Exception as e:
+        print(f"[ERROR] Gagal buat tabel backtracking_log: {e}")
+
+
+async def catat_backtracking_log(
+    user_id: str, target_app: str, total_candidates: int,
+    total_attempts: int, route_used: str, final_status: str,
+    trace: list, response_time_ms: int
+):
+    """Catat hasil backtracking routing ke MySQL"""
+    import json
+    try:
+        conn = await get_conn()
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                INSERT INTO backtracking_log 
+                (timestamp, user_id, target_app, total_candidates, total_attempts,
+                 route_used, final_status, trace, response_time_ms)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """, (
+                datetime.now(), user_id, target_app, total_candidates,
+                total_attempts, route_used or "none", final_status,
+                json.dumps(trace), response_time_ms
+            ))
+        conn.close()
+        print(f"[OK] Backtracking log {user_id} → {target_app} ({final_status}) tersimpan!")
+    except Exception as e:
+        print(f"[ERROR] Gagal simpan backtracking log: {e}")
+
+
+async def get_backtracking_stats():
+    """Ambil statistik backtracking untuk dashboard"""
+    import json
+    try:
+        conn = await get_conn()
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            # Total backtracking attempts
+            await cur.execute("SELECT COUNT(*) as total FROM backtracking_log")
+            total = (await cur.fetchone())["total"]
+
+            # Sukses vs gagal
+            await cur.execute("SELECT COUNT(*) as c FROM backtracking_log WHERE final_status = 'sukses'")
+            sukses = (await cur.fetchone())["c"]
+
+            await cur.execute("SELECT COUNT(*) as c FROM backtracking_log WHERE final_status = 'gagal'")
+            gagal = (await cur.fetchone())["c"]
+
+            # Average attempts
+            await cur.execute("SELECT COALESCE(AVG(total_attempts), 0) as avg_att FROM backtracking_log")
+            avg_attempts = float((await cur.fetchone())["avg_att"])
+
+            # Backtrack events (attempts > 1 means backtracking occurred)
+            await cur.execute("SELECT COUNT(*) as c FROM backtracking_log WHERE total_attempts > 1")
+            backtrack_count = (await cur.fetchone())["c"]
+
+            # Average response time
+            await cur.execute("SELECT COALESCE(AVG(response_time_ms), 0) as avg_ms FROM backtracking_log")
+            avg_ms = float((await cur.fetchone())["avg_ms"])
+
+            # Most common route_used
+            await cur.execute("""
+                SELECT route_used, COUNT(*) as c FROM backtracking_log 
+                WHERE final_status = 'sukses'
+                GROUP BY route_used ORDER BY c DESC LIMIT 3
+            """)
+            top_routes = await cur.fetchall()
+
+            # Per-app breakdown
+            await cur.execute("""
+                SELECT target_app, 
+                       COUNT(*) as total,
+                       SUM(CASE WHEN final_status = 'sukses' THEN 1 ELSE 0 END) as sukses,
+                       SUM(CASE WHEN final_status = 'gagal' THEN 1 ELSE 0 END) as gagal,
+                       AVG(total_attempts) as avg_attempts
+                FROM backtracking_log 
+                GROUP BY target_app
+            """)
+            per_app = await cur.fetchall()
+            for row in per_app:
+                row["avg_attempts"] = float(row["avg_attempts"])
+
+            # Recent logs (last 20)
+            await cur.execute("""
+                SELECT * FROM backtracking_log 
+                ORDER BY timestamp DESC LIMIT 20
+            """)
+            recent = await cur.fetchall()
+            for r in recent:
+                if r.get("timestamp"):
+                    r["timestamp"] = r["timestamp"].isoformat()
+                # Parse trace JSON string
+                if r.get("trace") and isinstance(r["trace"], str):
+                    try:
+                        r["trace"] = json.loads(r["trace"])
+                    except Exception:
+                        pass
+
+        conn.close()
+        return {
+            "total_requests": total,
+            "sukses": sukses,
+            "gagal": gagal,
+            "success_rate": round((sukses / total * 100), 1) if total > 0 else 0,
+            "backtrack_count": backtrack_count,
+            "avg_attempts": round(avg_attempts, 2),
+            "avg_response_ms": round(avg_ms, 1),
+            "top_routes": list(top_routes),
+            "per_app": list(per_app),
+            "recent_logs": list(recent)
+        }
+    except Exception as e:
+        print(f"[ERROR] Gagal ambil backtracking stats: {e}")
+        return {"error": str(e)}
