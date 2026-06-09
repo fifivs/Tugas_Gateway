@@ -64,16 +64,20 @@
       <div class="login-demo">
         <div class="demo-header">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Akun Demo untuk Testing</span>
+          <span>Akun Demo Database (Password: <code>password123</code>)</span>
         </div>
-        <div class="demo-creds">
-          <div class="demo-item">
-            <span class="demo-label">Username:</span>
-            <code class="demo-value">admin</code>
+        <div class="demo-creds" style="display:flex; flex-direction:column; gap:4px; font-size: 0.85rem; text-align: left; padding: 5px 10px;">
+          <div class="demo-item" style="justify-content: space-between; margin-bottom: 2px;">
+            <span class="demo-label">👑 Admin:</span>
+            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('admin_gateway')">admin_gateway</code>
           </div>
-          <div class="demo-item">
-            <span class="demo-label">Password:</span>
-            <code class="demo-value">admin123</code>
+          <div class="demo-item" style="justify-content: space-between; margin-bottom: 2px;">
+            <span class="demo-label">⚙️ Operator:</span>
+            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('operator_01')">operator_01</code>
+          </div>
+          <div class="demo-item" style="justify-content: space-between;">
+            <span class="demo-label">👤 User:</span>
+            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('enduser_demo')">enduser_demo</code>
           </div>
         </div>
       </div>
@@ -87,39 +91,56 @@
       window.location.href = '/dashboard';
     }
 
-    const VALID_USERS = [
-      { username: 'admin', password: 'admin123', name: 'Administrator' },
-      { username: 'konsumen', password: 'konsumen123', name: 'Konsumen UMKM' }
-    ];
+    function fillCreds(username) {
+      document.getElementById('loginUsername').value = username;
+      document.getElementById('loginPassword').value = 'password123';
+    }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('loginUsername').value.trim();
       const password = document.getElementById('loginPassword').value.trim();
       const btn = document.getElementById('btnLogin');
       const errorEl = document.getElementById('loginError');
+      const errorTextEl = document.getElementById('loginErrorText');
 
       errorEl.style.display = 'none';
       btn.disabled = true;
       btn.innerHTML = '<div class="spinner"></div> Memverifikasi...';
 
-      setTimeout(() => {
-        const user = VALID_USERS.find(u => u.username === username && u.password === password);
-        if (user) {
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        const data = await res.json();
+
+        if (data.sukses) {
           localStorage.setItem('gateway_logged_in', 'true');
-          localStorage.setItem('gateway_user', user.name);
-          localStorage.setItem('gateway_username', user.username);
+          localStorage.setItem('gateway_user', data.user.full_name);
+          localStorage.setItem('gateway_username', data.user.username);
+          localStorage.setItem('gateway_role', data.user.role);
+          localStorage.setItem('gateway_token', data.token);
           window.location.href = '/dashboard';
         } else {
           errorEl.style.display = 'flex';
-          document.getElementById('loginErrorText').textContent = 'Username atau password salah!';
+          errorTextEl.textContent = data.pesan || 'Username atau password salah!';
           btn.disabled = false;
           btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Masuk ke Dashboard`;
           const card = document.querySelector('.login-card');
           card.classList.add('shake');
           setTimeout(() => card.classList.remove('shake'), 500);
         }
-      }, 800);
+      } catch (err) {
+        errorEl.style.display = 'flex';
+        errorTextEl.textContent = 'Gagal menghubungi server: ' + err.message;
+        btn.disabled = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Masuk ke Dashboard`;
+      }
     }
   </script>
 </body>

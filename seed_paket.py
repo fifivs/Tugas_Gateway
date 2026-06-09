@@ -4,7 +4,7 @@ import aiomysql
 async def seed():
     conn = await aiomysql.connect(host='localhost', port=3306, user='root', password='', autocommit=True)
     async with conn.cursor() as cur:
-        await cur.execute('USE TugasGateway')
+        await cur.execute('USE TugasGateaway')
 
         # Buat tabel pricing_plans
         await cur.execute("""

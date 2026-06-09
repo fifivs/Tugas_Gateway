@@ -1,9 +1,11 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from models.schemas import RequestFormat, ResponseFormat
-from services.jwt_service import verifikasi_token, bikin_token_dummy
+from pydantic import BaseModel
+from typing import Optional
+from services.jwt_service import verifikasi_token, bikin_token, bikin_token_dummy
 from services.log_service import (
     catat_log_mongo,
     hitung_fee_gateway,
@@ -20,7 +22,12 @@ from services.log_service import (
     get_status_app,
     upgrade_paket_app,
     catat_backtracking_log,
-    get_backtracking_stats
+    get_backtracking_stats,
+    autentikasi_user,
+    get_financial_ledger,
+    add_financial_entry,
+    delete_financial_entry,
+    get_financial_summary,
 )
 from services.routing_service import teruskan_ke_smartbank, teruskan_ke_app, get_daftar_app, route_dengan_backtracking, get_route_candidates_info
 from collections import defaultdict
@@ -74,6 +81,32 @@ def validasi_amount(raw_amount):
 
 app = FastAPI(title="API Gateway / Integrator UMKM")
 
+# ==========================================
+# DEPENDENCY — CEK ROLE DARI JWT BEARER TOKEN
+# Gunakan ini di endpoint yang perlu proteksi
+# ==========================================
+
+def cek_role(required_roles: list):
+    """
+    Factory dependency untuk cek role user dari Bearer token.
+    Contoh pemakaian: Depends(cek_role(["admin", "operator"]))
+    """
+    def _dependency(authorization: Optional[str] = Header(default=None)):
+        if not authorization or not authorization.startswith("Bearer "):
+            raise HTTPException(status_code=401, detail="Token tidak ditemukan. Silakan login terlebih dahulu.")
+        token = authorization.split(" ", 1)[1]
+        auth = verifikasi_token(token)
+        if not auth["valid"]:
+            raise HTTPException(status_code=401, detail=auth["pesan"])
+        role = (auth.get("role") or "").lower()
+        if role not in [r.lower() for r in required_roles]:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Akses ditolak. Halaman ini hanya untuk: {', '.join(required_roles)}."
+            )
+        return {"user_id": auth["user_id"], "role": role}
+    return _dependency
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -97,6 +130,37 @@ def serve_landing():
 @app.get("/login")
 def serve_login():
     return FileResponse(os.path.join(frontend_dir, "login.html"))
+
+
+class LoginCredentials(BaseModel):
+    username: str
+    password: str
+
+
+class FinancialEntrySchema(BaseModel):
+    tipe: str        # pemasukan | pengeluaran | aset | kewajiban
+    kategori: str
+    deskripsi: str
+    jumlah: float
+    user_id: str
+    tanggal: str = None  # opsional, default hari ini
+
+
+@app.post("/api/login")
+async def login_api(creds: LoginCredentials, request: Request):
+    ip_address = request.client.host if request.client else "unknown"
+    user_agent = request.headers.get("user-agent", "unknown")
+    hasil = await autentikasi_user(
+        username=creds.username,
+        password_raw=creds.password,
+        ip_address=ip_address,
+        user_agent=user_agent
+    )
+    if hasil["sukses"]:
+        user_role = hasil["user"].get("role", "")
+        token = bikin_token(hasil["user"]["username"], user_role)
+        hasil["token"] = token
+    return hasil
 
 @app.get("/dashboard")
 def serve_dashboard():
@@ -543,3 +607,69 @@ def daftar_route():
             "endpoint_universal": "POST /integrator/routing_universal"
         }
     }
+
+
+# ==========================================
+# FINANCIAL LEDGER — Pembukuan & Neraca
+# ==========================================
+
+@app.get("/integrator/pembukuan")
+def serve_pembukuan():
+    """Sajikan halaman frontend Pembukuan & Neraca"""
+    return FileResponse(os.path.join(frontend_dir, "pembukuan.html"))
+
+
+
+@app.get("/api/financial/summary")
+async def financial_summary_endpoint(
+    current_user: dict = Depends(cek_role(["admin", "operator"]))
+):
+    """Ambil ringkasan keuangan: Laba Rugi & Neraca"""
+    data = await get_financial_summary()
+    if "error" in data:
+        return {"status": "gagal", "data": data}
+    return {"status": "sukses", "data": data}
+
+
+@app.get("/api/financial/ledger")
+async def financial_ledger_endpoint(
+    current_user: dict = Depends(cek_role(["admin", "operator"]))
+):
+    """Ambil daftar semua transaksi buku besar"""
+    data = await get_financial_ledger()
+    return {"status": "sukses", "data": data}
+
+
+@app.post("/api/financial/entry")
+async def financial_add_entry(
+    entry: FinancialEntrySchema,
+    current_user: dict = Depends(cek_role(["admin", "operator"]))
+):
+    """Tambah transaksi keuangan baru (Admin & Operator)"""
+    valid_tipe = ["pemasukan", "pengeluaran", "aset", "kewajiban"]
+    if entry.tipe not in valid_tipe:
+        return {"status": "gagal", "data": {"pesan": f"Tipe harus salah satu dari: {', '.join(valid_tipe)}"}}
+    if entry.jumlah <= 0:
+        return {"status": "gagal", "data": {"pesan": "Jumlah harus lebih dari 0"}}
+
+    hasil = await add_financial_entry(
+        tipe=entry.tipe,
+        kategori=entry.kategori,
+        deskripsi=entry.deskripsi,
+        jumlah=entry.jumlah,
+        user_id=entry.user_id,
+        tanggal=entry.tanggal
+    )
+    status = "sukses" if hasil.get("sukses") else "gagal"
+    return {"status": status, "data": hasil}
+
+
+@app.delete("/api/financial/entry/{entry_id}")
+async def financial_delete_entry(
+    entry_id: int,
+    current_user: dict = Depends(cek_role(["admin"]))
+):
+    """Hapus transaksi keuangan (Admin only)"""
+    hasil = await delete_financial_entry(entry_id)
+    status = "sukses" if hasil.get("sukses") else "gagal"
+    return {"status": status, "data": hasil}

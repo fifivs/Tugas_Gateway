@@ -46,42 +46,42 @@
         <div class="nav-section">
           <div class="nav-section-title">Menu Utama</div>
 
-          <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
+          <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
             </span>
             Dashboard
           </div>
 
-          <div class="nav-item" onclick="showPage('token')" id="nav-token">
+          <div class="nav-item" onclick="showPage('token')" id="nav-token" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
             </span>
             Generate Token
           </div>
 
-          <div class="nav-item" onclick="showPage('transaksi')" id="nav-transaksi">
+          <div class="nav-item" onclick="showPage('transaksi')" id="nav-transaksi" data-roles="admin,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
             </span>
             Kirim Transaksi
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/apps/manage'" id="nav-apps-manage">
+          <div class="nav-item" onclick="window.location.href='/apps/manage'" id="nav-apps-manage" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
             </span>
             Apps Management
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/integrator/manage/routing'" id="nav-routing-manage">
+          <div class="nav-item" onclick="window.location.href='/integrator/manage/routing'" id="nav-routing-manage" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
             </span>
             Routing Test
           </div>
 
-          <div class="nav-item" onclick="showPage('universal')" id="nav-universal">
+          <div class="nav-item" onclick="showPage('universal')" id="nav-universal" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
             </span>
@@ -92,63 +92,84 @@
         <div class="nav-section">
           <div class="nav-section-title">Informasi</div>
 
-          <div class="nav-item" onclick="showPage('fee')" id="nav-fee">
+          <div class="nav-item" onclick="showPage('fee')" id="nav-fee" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><path d="M9 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-3"/><path d="M9 15h3l8.5-8.5a1.5 1.5 0 0 0-3-3L9 12v3"/><line x1="16" y1="5" x2="19" y2="8"/></svg>
             </span>
             Kalkulator Fee
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/paket/list'" id="nav-pricing-list">
+          <div class="nav-item" onclick="window.location.href='/paket/list'" id="nav-pricing-list" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
             </span>
             Pricing List
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/pricing/manage'" id="nav-pricing-manage">
+          <div class="nav-item" onclick="window.location.href='/pricing/manage'" id="nav-pricing-manage" data-roles="admin">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
             </span>
             Pricing UI
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/token/manage'" id="nav-token-manage">
+          <div class="nav-item" onclick="window.location.href='/token/manage'" id="nav-token-manage" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </span>
             Token UI
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/integrator/fee/manage'" id="nav-fee-manage">
+          <div class="nav-item" onclick="window.location.href='/integrator/fee/manage'" id="nav-fee-manage" data-roles="admin,operator">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
             </span>
             Fee UI
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/integrator/logging/manage'" id="nav-logging-manage">
+          <div class="nav-item" onclick="window.location.href='/integrator/logging/manage'" id="nav-logging-manage" data-roles="admin,operator">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
             </span>
             Logging UI
           </div>
 
-          <div class="nav-item" onclick="window.location.href='/monitor/health-check/manage'" id="nav-health-manage">
+          <div class="nav-item" onclick="window.location.href='/monitor/health-check/manage'" id="nav-health-manage" data-roles="admin,operator">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             </span>
             Health UI
           </div>
 
-          <div class="nav-item" onclick="showPage('alur')" id="nav-alur">
+          <div class="nav-item" onclick="window.location.href='/monitor'" id="nav-api-monitor" data-roles="admin,operator">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M5.07 5.07a12 12 0 0 0 0 13.86"/><path d="M1.42 1.42a19 19 0 0 0 0 21.16"/><path d="M18.93 5.07a12 12 0 0 1 0 13.86"/><path d="M22.58 1.42a19 19 0 0 1 0 21.16"/><circle cx="12" cy="12" r="2"/></svg>
+            </span>
+            API Monitor
+          </div>
+
+          <div class="nav-item" onclick="window.location.href='/integrator/backtracking/manage'" id="nav-backtracking-manage" data-roles="admin,operator">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            </span>
+            Backtracking Routing
+          </div>
+
+          <div class="nav-item" onclick="window.location.href='/integrator/pembukuan'" id="nav-pembukuan" data-roles="admin,operator">
+            <span class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </span>
+            Pembukuan &amp; Neraca
+          </div>
+
+          <div class="nav-item" onclick="showPage('alur')" id="nav-alur" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
             </span>
             Alur Sistem
           </div>
 
-          <div class="nav-item" onclick="showPage('docs')" id="nav-docs">
+          <div class="nav-item" onclick="showPage('docs')" id="nav-docs" data-roles="admin,operator,end_user">
             <span class="nav-icon">
               <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
             </span>

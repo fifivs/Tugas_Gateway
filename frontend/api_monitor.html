@@ -234,8 +234,8 @@
   .db-item-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
   .db-item-app { font-weight: 700; font-size: 12px; }
   .db-item-time { color: var(--muted); }
-  .db-item-detail { color: var(--muted); font-family: monospace; }
 </style>
+<script src="/static/tool_common.js"></script>
 </head>
 <body>
 
@@ -251,6 +251,10 @@
   </div>
   <div class="header-right">
     <span class="last-check" id="lastCheck">Belum dicek</span>
+    <a class="btn btn-ghost" href="/dashboard" id="btn_dashboard">
+      <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
     <button class="btn btn-primary" onclick="checkAll()" id="btn_check_all">
       <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       Cek Semua API
@@ -287,7 +291,7 @@
   <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('monitor', this)">Status Monitor</button>
-    <button class="tab-btn" onclick="switchTab('database', this)">Database MongoDB</button>
+    <button class="tab-btn" onclick="switchTab('database', this)">Database MySQL</button>
   </div>
 
   <!-- TAB: MONITOR -->
@@ -334,7 +338,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
       <div class="section-title" style="margin-bottom:0">
         <svg style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-        Data MongoDB Atlas
+        Data MySQL Local
       </div>
       <button class="refresh-btn" onclick="loadDbStats()">Refresh Data</button>
     </div>
@@ -342,31 +346,31 @@
     <div class="db-grid">
       <div class="db-card">
         <div class="db-card-title">Statistik Request Gateway</div>
-        <div id="dbRequestStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MongoDB</div></div>
+        <div id="dbRequestStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MySQL</div></div>
       </div>
       <div class="db-card">
         <div class="db-card-title">Fee &amp; Transaksi</div>
-        <div id="dbFeeStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MongoDB</div></div>
+        <div id="dbFeeStats"><div class="db-empty">Klik Refresh Data untuk memuat dari MySQL</div></div>
       </div>
     </div>
 
     <div class="log-card">
       <div class="log-header">
-        <span style="font-weight:600; font-size:14px">Health Log — MongoDB (api_health_log)</span>
+        <span style="font-weight:600; font-size:14px">Health Log — MySQL (api_health_log)</span>
         <span id="dbHealthCount" style="font-size:12px; color:var(--muted)"></span>
       </div>
       <div class="db-list" id="dbHealthList">
-        <div class="db-empty">Klik Refresh Data untuk memuat log dari MongoDB</div>
+        <div class="db-empty">Klik Refresh Data untuk memuat log dari MySQL</div>
       </div>
     </div>
 
     <div class="log-card" style="margin-top:14px;">
       <div class="log-header">
-        <span style="font-weight:600; font-size:14px">Request Log — MongoDB (api_request_log)</span>
+        <span style="font-weight:600; font-size:14px">Request Log — MySQL (api_request_log)</span>
         <span id="dbReqCount" style="font-size:12px; color:var(--muted)"></span>
       </div>
       <div class="db-list" id="dbRequestList">
-        <div class="db-empty">Klik Refresh Data untuk memuat log dari MongoDB</div>
+        <div class="db-empty">Klik Refresh Data untuk memuat log dari MySQL</div>
       </div>
     </div>
   </div><!-- /tab-database -->
@@ -608,7 +612,7 @@ function switchTab(name, btn) {
 }
 
 // ============================================
-// SAVE HEALTH CHECK TO MONGODB via Gateway
+// SAVE HEALTH CHECK TO MYSQL via Gateway
 // ============================================
 async function saveHealthToDb(appName, endpoint, status, responseTimeMs, statusCode, errorMessage) {
   try {
@@ -668,7 +672,7 @@ async function loadDbStats() {
     const reqLogs = d.recent_logs || [];
     document.getElementById('dbReqCount').textContent = reqLogs.length + ' entri terbaru';
     document.getElementById('dbRequestList').innerHTML = reqLogs.length === 0
-      ? '<div class="db-empty">Belum ada request log di MongoDB</div>'
+      ? '<div class="db-empty">Belum ada request log di MySQL</div>'
       : reqLogs.map(r => `
         <div class="db-item">
           <div class="db-item-header">
@@ -689,7 +693,7 @@ async function loadDbStats() {
 
     document.getElementById('dbHealthCount').textContent = healthLogs.length + ' entri terbaru';
     document.getElementById('dbHealthList').innerHTML = healthLogs.length === 0
-      ? '<div class="db-empty">Belum ada health log. Klik "Cek Semua API" dulu biar tersimpan ke MongoDB.</div>'
+      ? '<div class="db-empty">Belum ada health log. Klik "Cek Semua API" dulu biar tersimpan ke MySQL.</div>'
       : healthLogs.map(h => `
         <div class="db-item">
           <div class="db-item-header">
@@ -704,4 +708,4 @@ async function loadDbStats() {
 }
 </script>
 </body>
-</html><!-- This marker should not appear - appending JS before closing tags via sed -->
+</html>

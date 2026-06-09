@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="API Gateway UMKM - Pembukuan & Neraca Keuangan untuk manajemen keuangan gateway">
+  <title>Pembukuan & Neraca — API Gateway</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #0f1526;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --bg-card-hover: rgba(255, 255, 255, 0.07);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(99, 102, 241, 0.5);
+      --text-primary: #f0f4ff;
+      --text-secondary: #8892a4;
+      --text-muted: #505a72;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --green: #22c55e;
+      --green-dim: rgba(34, 197, 94, 0.15);
+      --red: #ef4444;
+      --red-dim: rgba(239, 68, 68, 0.15);
+      --yellow: #f59e0b;
+      --yellow-dim: rgba(245, 158, 11, 0.15);
+      --blue: #3b82f6;
+      --blue-dim: rgba(59, 130, 246, 0.15);
+      --purple: #a855f7;
+      --purple-dim: rgba(168, 85, 247, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 0;
+    }
+
+    /* ===== PAGE GUARD OVERLAY ===== */
+    #accessDenied {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 16px;
+      text-align: center;
+    }
+
+    #accessDenied .deny-icon {
+      font-size: 64px;
+    }
+
+    #accessDenied h2 {
+      font-size: 24px;
+      color: var(--red);
+    }
+
+    #accessDenied p {
+      color: var(--text-secondary);
+    }
+
+    #accessDenied button {
+      margin-top: 8px;
+      padding: 10px 24px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    /* ===== BACKGROUND ===== */
+    .bg-animation {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.12;
+      animation: float 12s ease-in-out infinite;
+    }
+
+    .orb:nth-child(1) {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #6366f1, transparent);
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, #06b6d4, transparent);
+      bottom: -100px;
+      right: -50px;
+      animation-delay: -4s;
+    }
+
+    .orb:nth-child(3) {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, #22c55e, transparent);
+      top: 50%;
+      left: 50%;
+      animation-delay: -8s;
+    }
+
+    @keyframes float {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-30px) scale(1.05);
+      }
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
+
+    /* ===== HEADER ===== */
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .header-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .header-icon svg {
+      width: 26px;
+      height: 26px;
+      fill: none;
+      stroke: #fff;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .page-subtitle {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+
+    .btn svg {
+      width: 15px;
+      height: 15px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .btn-ghost {
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, .3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, .4);
+    }
+
+    .btn-danger {
+      background: var(--red-dim);
+      color: var(--red);
+      border: 1px solid rgba(239, 68, 68, .2);
+    }
+
+    .btn-danger:hover {
+      background: var(--red);
+      color: #fff;
+    }
+
+    /* ===== INFO BOXES (AdminLTE Style) ===== */
+    .info-boxes {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .info-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: all .3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .info-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      border-radius: 14px 14px 0 0;
+    }
+
+    .info-box:hover {
+      transform: translateY(-2px);
+      border-color: var(--border-active);
+    }
+
+    .info-box.green::before {
+      background: linear-gradient(90deg, var(--green), #16a34a);
+    }
+
+    .info-box.blue::before {
+      background: linear-gradient(90deg, var(--blue), #2563eb);
+    }
+
+    .info-box.yellow::before {
+      background: linear-gradient(90deg, var(--yellow), #d97706);
+    }
+
+    .info-box.red::before {
+      background: linear-gradient(90deg, var(--red), #dc2626);
+    }
+
+    .info-box.purple::before {
+      background: linear-gradient(90deg, var(--purple), #7c3aed);
+    }
+
+    .info-box.accent::before {
+      background: linear-gradient(90deg, var(--accent), #4f46e5);
+    }
+
+    .ib-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .ib-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .info-box.green .ib-icon {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .info-box.blue .ib-icon {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .info-box.yellow .ib-icon {
+      background: var(--yellow-dim);
+      color: var(--yellow);
+    }
+
+    .info-box.red .ib-icon {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .info-box.purple .ib-icon {
+      background: var(--purple-dim);
+      color: var(--purple);
+    }
+
+    .info-box.accent .ib-icon {
+      background: rgba(99, 102, 241, .15);
+      color: var(--accent);
+    }
+
+    .ib-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ib-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .ib-value {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 4px;
+      word-break: break-all;
+    }
+
+    .ib-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* ===== GRID 2-COLUMN ===== */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    @media(max-width:900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== CARD ===== */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      color: var(--accent);
+    }
+
+    .card-body {
+      padding: 22px;
+    }
+
+    /* ===== FORM ===== */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1/-1;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .4px;
+    }
+
+    input,
+    select,
+    textarea {
+      background: rgba(255, 255, 255, .05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      padding: 10px 13px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: border-color .2s;
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, .1);
+    }
+
+    select option {
+      background: #1a2035;
+    }
+
+    .form-actions {
+      margin-top: 18px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* ===== TABS ===== */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all .2s;
+      margin-bottom: -1px;
+    }
+
+    .tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab:hover:not(.active) {
+      color: var(--text-primary);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* ===== TABLE ===== */
+    .table-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 22px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .table-search {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0 12px;
+    }
+
+    .table-search svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: var(--text-muted);
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    .table-search input {
+      background: transparent;
+      border: none;
+      padding: 9px 4px;
+      font-size: 13px;
+      outline: none;
+      width: 100%;
+    }
+
+    .table-filter select {
+      min-width: 120px;
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table thead tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-table th {
+      padding: 10px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      text-align: left;
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      vertical-align: middle;
+    }
+
+    .data-table tbody tr {
+      transition: background .15s;
+    }
+
+    .data-table tbody tr:hover {
+      background: rgba(255, 255, 255, .03);
+    }
+
+    .data-table tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .badge-pemasukan {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .badge-pengeluaran {
+      background: var(--red-dim);
+      color: var(--red);
+    }
+
+    .badge-aset {
+      background: var(--blue-dim);
+      color: var(--blue);
+    }
+
+    .badge-kewajiban {
+      background: var(--yellow-dim);
+      color: var(--yellow);
+    }
+
+    .action-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      padding: 5px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--red);
+      transition: all .2s;
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action-btn svg {
+      width: 12px;
+      height: 12px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .action-btn:hover {
+      background: var(--red);
+      color: #fff;
+      border-color: var(--red);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .empty-state {
+      padding: 48px 24px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: .3;
+    }
+
+    /* ===== REPORT TABLES ===== */
+    .report-section {
+      margin-bottom: 24px;
+    }
+
+    .report-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .report-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 9px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, .03);
+      font-size: 13px;
+    }
+
+    .report-row:last-child {
+      border-bottom: none;
+    }
+
+    .report-row .label {
+      color: var(--text-secondary);
+    }
+
+    .report-row .value {
+      font-weight: 600;
+    }
+
+    .report-row.total {
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+      padding-top: 12px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .report-row.total .value.positive {
+      color: var(--green);
+    }
+
+    .report-row.total .value.negative {
+      color: var(--red);
+    }
+
+    .report-row .value.green {
+      color: var(--green);
+    }
+
+    .report-row .value.red {
+      color: var(--red);
+    }
+
+    .report-row .value.blue {
+      color: var(--blue);
+    }
+
+    .report-row .value.yellow {
+      color: var(--yellow);
+    }
+
+    .neraca-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media(max-width:700px) {
+      .neraca-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 9000;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all .3s;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    #toast.success {
+      background: #22c55e;
+      color: #fff;
+    }
+
+    #toast.error {
+      background: #ef4444;
+      color: #fff;
+    }
+
+    #toast.info {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ===== LOADING ===== */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255, 255, 255, .04) 25%, rgba(255, 255, 255, .08) 50%, rgba(255, 255, 255, .04) 75%);
+      background-size: 400% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 6px;
+      height: 16px;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 100% 0
+      }
+
+      100% {
+        background-position: -100% 0
+      }
+    }
+
+    /* ===== AMOUNT INPUT HELPER ===== */
+    .amount-preview {
+      font-size: 11px;
+      color: var(--yellow);
+      margin-top: 4px;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:600px) {
+      .info-boxes {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background -->
+  <div class="bg-animation">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Access Denied Overlay -->
+  <div id="accessDenied">
+    <div class="deny-icon">🔒</div>
+    <h2>Akses Ditolak</h2>
+    <p>Halaman ini hanya dapat diakses oleh <strong>Admin</strong> dan <strong>Operator</strong>.</p>
+    <button onclick="window.location.href='/dashboard'">Kembali ke Dashboard</button>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast"></div>
+
+  <!-- Main -->
+  <div class="page-wrapper" id="mainContent" style="display:none;">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+          </svg>
+        </div>
+        <div>
+          <div class="page-title">Pembukuan &amp; Neraca Keuangan</div>
+          <div class="page-subtitle" id="headerSubtitle">Memuat ringkasan keuangan...</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" onclick="refreshAll()">
+          <svg viewBox="0 0 24 24">
+            <polyline points="23 4 23 10 17 10" />
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+          </svg>
+          Refresh
+        </button>
+        <button class="btn btn-ghost" onclick="window.location.href='/dashboard'">
+          <svg viewBox="0 0 24 24">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Dashboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Info Boxes -->
+    <div class="info-boxes" id="infoBoxes">
+      <!-- dynamically rendered -->
+      <div class="info-box green">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Total Pemasukan</div>
+          <div class="ib-value" id="ib-total-pemasukan">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub">Manual + Gateway + Paket</div>
+        </div>
+      </div>
+      <div class="info-box blue">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M12 6v6l4 2" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Pendapatan Gateway Fee</div>
+          <div class="ib-value" id="ib-gateway-fee">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub">Dari transaksi sukses</div>
+        </div>
+      </div>
+      <div class="info-box yellow">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Pendapatan Paket</div>
+          <div class="ib-value" id="ib-pendapatan-paket">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub" id="ib-paket-sub">App aktif berlangganan</div>
+        </div>
+      </div>
+      <div class="info-box red">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6" />
+            <polyline points="17 18 23 18 23 12" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Total Pengeluaran</div>
+          <div class="ib-value" id="ib-pengeluaran">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub">Biaya operasional</div>
+        </div>
+      </div>
+      <div class="info-box accent">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Laba Bersih</div>
+          <div class="ib-value" id="ib-laba-bersih">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub">Pemasukan - Pengeluaran</div>
+        </div>
+      </div>
+      <div class="info-box purple">
+        <div class="ib-icon"><svg viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg></div>
+        <div class="ib-content">
+          <div class="ib-label">Total Aset</div>
+          <div class="ib-value" id="ib-total-aset">
+            <div class="skeleton" style="width:100px;height:20px;"></div>
+          </div>
+          <div class="ib-sub">Aset yang tercatat</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form + Laporan Row -->
+    <div class="grid-2">
+
+      <!-- Form Input Transaksi -->
+      <div class="card" id="formCard">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="16" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+            Tambah Transaksi Baru
+          </div>
+        </div>
+        <div class="card-body">
+          <form id="formTambah" onsubmit="submitTambah(event)">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="f-tipe">Tipe Transaksi *</label>
+                <select id="f-tipe" required>
+                  <option value="">-- Pilih Tipe --</option>
+                  <option value="pemasukan">💚 Pemasukan</option>
+                  <option value="pengeluaran">❤️ Pengeluaran</option>
+                  <option value="aset">💙 Aset</option>
+                  <option value="kewajiban">🟡 Kewajiban</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="f-kategori">Kategori *</label>
+                <input id="f-kategori" type="text" placeholder="Misal: Biaya Cloud" required>
+              </div>
+              <div class="form-group full">
+                <label for="f-deskripsi">Deskripsi *</label>
+                <input id="f-deskripsi" type="text" placeholder="Keterangan singkat transaksi ini..." required>
+              </div>
+              <div class="form-group">
+                <label for="f-jumlah">Jumlah (Rp) *</label>
+                <input id="f-jumlah" type="number" min="1" step="1" placeholder="Contoh: 500000" required
+                  oninput="previewAmount(this.value)">
+                <div class="amount-preview" id="amountPreview"></div>
+              </div>
+              <div class="form-group">
+                <label for="f-tanggal">Tanggal</label>
+                <input id="f-tanggal" type="date">
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn btn-ghost" onclick="resetForm()">Reset</button>
+              <button type="submit" class="btn btn-primary" id="submitBtn">
+                <svg viewBox="0 0 24 24">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Simpan Transaksi
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Laporan Keuangan Tab -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg viewBox="0 0 24 24">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            Laporan Keuangan
+          </div>
+        </div>
+        <div class="card-body" style="padding-top:8px;">
+          <div class="tabs">
+            <div class="tab active" id="tab-labarugi" onclick="switchTab('labarugi')">Laba Rugi</div>
+            <div class="tab" id="tab-neraca" onclick="switchTab('neraca')">Neraca</div>
+          </div>
+
+          <!-- Tab Laba Rugi -->
+          <div class="tab-content active" id="content-labarugi">
+            <div class="report-section" id="labarugiContent">
+              <div class="skeleton" style="height:14px;width:60%;margin-bottom:12px;"></div>
+              <div class="skeleton" style="height:12px;width:100%;margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:12px;width:100%;margin-bottom:8px;"></div>
+              <div class="skeleton" style="height:12px;width:100%;"></div>
+            </div>
+          </div>
+
+          <!-- Tab Neraca -->
+          <div class="tab-content" id="content-neraca">
+            <div class="neraca-grid" id="neracaContent">
+              <div>
+                <div class="skeleton" style="height:14px;width:60%;margin-bottom:12px;"></div>
+                <div class="skeleton" style="height:12px;width:100%;margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:12px;width:100%;"></div>
+              </div>
+              <div>
+                <div class="skeleton" style="height:14px;width:60%;margin-bottom:12px;"></div>
+                <div class="skeleton" style="height:12px;width:100%;margin-bottom:8px;"></div>
+                <div class="skeleton" style="height:12px;width:100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ledger Table -->
+    <div class="card" style="margin-bottom:32px;">
+      <div class="card-header">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24">
+            <line x1="8" y1="6" x2="21" y2="6" />
+            <line x1="8" y1="12" x2="21" y2="12" />
+            <line x1="8" y1="18" x2="21" y2="18" />
+            <line x1="3" y1="6" x2="3.01" y2="6" />
+            <line x1="3" y1="12" x2="3.01" y2="12" />
+            <line x1="3" y1="18" x2="3.01" y2="18" />
+          </svg>
+          Buku Besar Transaksi
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);" id="ledgerCount">Memuat...</div>
+      </div>
+      <div class="table-header">
+        <div class="table-search">
+          <svg viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input type="text" id="searchInput" placeholder="Cari deskripsi atau kategori..." oninput="filterLedger()">
+        </div>
+        <div class="table-filter">
+          <select id="filterTipe" onchange="filterLedger()">
+            <option value="">Semua Tipe</option>
+            <option value="pemasukan">Pemasukan</option>
+            <option value="pengeluaran">Pengeluaran</option>
+            <option value="aset">Aset</option>
+            <option value="kewajiban">Kewajiban</option>
+          </select>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Tanggal</th>
+              <th>Tipe</th>
+              <th>Kategori</th>
+              <th>Deskripsi</th>
+              <th style="text-align:right;">Jumlah</th>
+              <th>Dicatat Oleh</th>
+              <th style="text-align:center;" id="aksiHeader">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerBody">
+            <tr>
+              <td colspan="8" class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                </svg>
+                <p>Memuat data transaksi...</p>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- end page-wrapper -->
+
+  <script>
+    // ===================================================
+    // ROUTE GUARD
+    // ===================================================
+    (function () {
+      const role = (localStorage.getItem('gateway_role') || '').toLowerCase();
+      const allowed = ['admin', 'operator'];
+      if (!role || !allowed.includes(role)) {
+        document.getElementById('accessDenied').style.display = 'flex';
+        return;
+      }
+      document.getElementById('mainContent').style.display = 'block';
+      // Hide delete button for operator
+      window._userRole = role;
+      window._userName = localStorage.getItem('gateway_username') || localStorage.getItem('gateway_user') || 'user';
+      window._token = localStorage.getItem('gateway_token') || '';  // ← simpan token
+      if (role === 'operator') {
+        document.getElementById('aksiHeader').textContent = '';
+      }
+    })();
+
+    // Helper: tambah Authorization header ke semua request financial
+    function authHeaders(extra = {}) {
+      return { 'Authorization': 'Bearer ' + (window._token || ''), ...extra };
+    }
+
+    // ===================================================
+    // UTILITIES
+    // ===================================================
+    const fmt = (n) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n || 0);
+    const fmtDate = (s) => { if (!s) return '-'; const d = new Date(s); return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }); };
+
+    function showToast(msg, type = 'info') {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `show ${type}`;
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => { t.className = ''; }, 3000);
+    }
+
+    function previewAmount(val) {
+      const el = document.getElementById('amountPreview');
+      const n = parseFloat(val);
+      el.textContent = (!isNaN(n) && n > 0) ? fmt(n) : '';
+    }
+
+    // ===================================================
+    // TAB SWITCHING
+    // ===================================================
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      document.getElementById('content-' + name).classList.add('active');
+    }
+
+    // ===================================================
+    // FETCH SUMMARY
+    // ===================================================
+    let _summary = null;
+
+    async function loadSummary() {
+      try {
+        const res = await fetch('/api/financial/summary', { headers: authHeaders() });
+        const json = await res.json();
+        if (json.status !== 'sukses') throw new Error(json.data?.pesan || 'Gagal memuat summary');
+        _summary = json.data;
+        renderSummary(_summary);
+      } catch (e) {
+        showToast('Gagal memuat ringkasan keuangan: ' + e.message, 'error');
+      }
+    }
+
+    function renderSummary(data) {
+      const lr = data.laba_rugi;
+      const nr = data.neraca;
+      const info = data.info;
+
+      // Info Boxes
+      document.getElementById('ib-total-pemasukan').textContent = fmt(lr.total_pemasukan);
+      document.getElementById('ib-gateway-fee').textContent = fmt(lr.pendapatan_gateway_fee);
+      document.getElementById('ib-pendapatan-paket').textContent = fmt(lr.pendapatan_langganan);
+      document.getElementById('ib-paket-sub').textContent = `${info.app_aktif} app aktif berlangganan`;
+      document.getElementById('ib-pengeluaran').textContent = fmt(lr.total_pengeluaran);
+
+      const labaBersihEl = document.getElementById('ib-laba-bersih');
+      labaBersihEl.textContent = fmt(lr.laba_bersih);
+      labaBersihEl.style.color = lr.laba_bersih >= 0 ? 'var(--green)' : 'var(--red)';
+
+      document.getElementById('ib-total-aset').textContent = fmt(nr.total_aset);
+
+      document.getElementById('headerSubtitle').textContent =
+        `Laba Bersih: ${fmt(lr.laba_bersih)} | Aset: ${fmt(nr.total_aset)} | App Aktif: ${info.app_aktif}`;
+
+      // Laba Rugi Tab
+      document.getElementById('labarugiContent').innerHTML = `
+    <div class="report-section">
+      <div class="report-title">📈 Pendapatan</div>
+      <div class="report-row"><span class="label">Pemasukan Manual</span><span class="value green">${fmt(lr.pemasukan_manual)}</span></div>
+      <div class="report-row"><span class="label">Pendapatan Gateway Fee (Otomatis)</span><span class="value green">${fmt(lr.pendapatan_gateway_fee)}</span></div>
+      <div class="report-row"><span class="label">Pendapatan Paket Langganan (Otomatis)</span><span class="value green">${fmt(lr.pendapatan_langganan)}</span></div>
+      <div class="report-row total"><span class="label">Total Pemasukan</span><span class="value positive">${fmt(lr.total_pemasukan)}</span></div>
+    </div>
+    <div class="report-section">
+      <div class="report-title">📉 Beban & Pengeluaran</div>
+      <div class="report-row"><span class="label">Total Pengeluaran</span><span class="value red">${fmt(lr.total_pengeluaran)}</span></div>
+    </div>
+    <div class="report-row total" style="margin-top:12px;">
+      <span class="label">🏆 Laba Bersih</span>
+      <span class="value ${lr.laba_bersih >= 0 ? 'positive' : 'negative'}">${fmt(lr.laba_bersih)}</span>
+    </div>
+  `;
+
+      // Neraca Tab
+      const ekuitas = nr.ekuitas;
+      document.getElementById('neracaContent').innerHTML = `
+    <div>
+      <div class="report-title">🏦 Aset</div>
+      <div class="report-row"><span class="label">Total Aset Tercatat</span><span class="value blue">${fmt(nr.total_aset)}</span></div>
+      <div class="report-row total"><span class="label">Total Aset</span><span class="value blue">${fmt(nr.total_aset)}</span></div>
+    </div>
+    <div>
+      <div class="report-title">📋 Kewajiban &amp; Ekuitas</div>
+      <div class="report-row"><span class="label">Total Kewajiban</span><span class="value yellow">${fmt(nr.total_kewajiban)}</span></div>
+      <div class="report-row"><span class="label">Ekuitas (Aset - Kewajiban)</span><span class="value ${ekuitas >= 0 ? 'green' : 'red'}">${fmt(ekuitas)}</span></div>
+      <div class="report-row total"><span class="label">Kewajiban + Ekuitas</span><span class="value ${nr.total_kewajiban + ekuitas >= 0 ? 'green' : 'red'}">${fmt(nr.total_kewajiban + ekuitas)}</span></div>
+    </div>
+  `;
+    }
+
+    // ===================================================
+    // FETCH LEDGER
+    // ===================================================
+    let _allLedger = [];
+
+    async function loadLedger() {
+      try {
+        const res = await fetch('/api/financial/ledger', { headers: authHeaders() });
+        const json = await res.json();
+        if (json.status !== 'sukses') throw new Error('Gagal memuat ledger');
+        _allLedger = json.data || [];
+        renderLedger(_allLedger);
+      } catch (e) {
+        document.getElementById('ledgerBody').innerHTML = `<tr><td colspan="8" class="empty-state"><p>Gagal memuat data: ${e.message}</p></td></tr>`;
+      }
+    }
+
+    function renderLedger(rows) {
+      const tbody = document.getElementById('ledgerBody');
+      document.getElementById('ledgerCount').textContent = `${rows.length} transaksi`;
+
+      if (rows.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <p>Belum ada transaksi. Tambahkan transaksi pertama di form atas.</p>
+      </div>
+    </td></tr>`;
+        return;
+      }
+
+      const isAdmin = window._userRole === 'admin';
+      tbody.innerHTML = rows.map((r, i) => {
+        const amountColor = ['pemasukan', 'aset'].includes(r.tipe) ? 'color:var(--green)' : 'color:var(--red)';
+        const sign = ['pemasukan', 'aset'].includes(r.tipe) ? '+' : '-';
+        return `<tr>
+      <td style="color:var(--text-muted);font-size:12px;">${i + 1}</td>
+      <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">${fmtDate(r.tanggal)}</td>
+      <td><span class="badge badge-${r.tipe}">${r.tipe}</span></td>
+      <td style="font-size:12px;color:var(--text-secondary);">${r.kategori}</td>
+      <td style="font-size:13px;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${r.deskripsi}">${r.deskripsi}</td>
+      <td style="text-align:right;font-weight:600;${amountColor};white-space:nowrap;">${sign} ${fmt(r.jumlah)}</td>
+      <td style="font-size:12px;color:var(--text-muted);">${r.user_id}</td>
+      <td style="text-align:center;">
+        ${isAdmin ? `<button class="action-btn" onclick="hapusEntri(${r.id})" title="Hapus transaksi ini">
+          <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Hapus
+        </button>` : '<span style="color:var(--text-muted);font-size:11px;">—</span>'}
+      </td>
+    </tr>`;
+      }).join('');
+    }
+
+    function filterLedger() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const t = document.getElementById('filterTipe').value;
+      const filtered = _allLedger.filter(r => {
+        const matchQ = !q || r.deskripsi.toLowerCase().includes(q) || r.kategori.toLowerCase().includes(q);
+        const matchT = !t || r.tipe === t;
+        return matchQ && matchT;
+      });
+      renderLedger(filtered);
+    }
+
+    // ===================================================
+    // DELETE ENTRY
+    // ===================================================
+    async function hapusEntri(id) {
+      if (!confirm(`Hapus transaksi #${id}? Tindakan ini tidak dapat dibatalkan.`)) return;
+      try {
+        const res = await fetch(`/api/financial/entry/${id}`, { method: 'DELETE', headers: authHeaders() });
+        const json = await res.json();
+        if (json.status === 'sukses') {
+          showToast('Transaksi berhasil dihapus ✓', 'success');
+          await refreshAll();
+        } else {
+          showToast('Gagal hapus: ' + (json.data?.pesan || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      }
+    }
+
+    // ===================================================
+    // ADD ENTRY FORM
+    // ===================================================
+    async function submitTambah(e) {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Menyimpan...';
+
+      const payload = {
+        tipe: document.getElementById('f-tipe').value,
+        kategori: document.getElementById('f-kategori').value.trim(),
+        deskripsi: document.getElementById('f-deskripsi').value.trim(),
+        jumlah: parseFloat(document.getElementById('f-jumlah').value),
+        user_id: window._userName,
+        tanggal: document.getElementById('f-tanggal').value || null,
+      };
+
+      try {
+        const res = await fetch('/api/financial/entry', {
+          method: 'POST',
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.status === 'sukses') {
+          showToast('Transaksi berhasil disimpan ✓', 'success');
+          resetForm();
+          await refreshAll();
+        } else {
+          showToast('Gagal simpan: ' + (json.data?.pesan || 'Unknown error'), 'error');
+        }
+      } catch (e) {
+        showToast('Error: ' + e.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;"><polyline points="20 6 9 17 4 12"/></svg> Simpan Transaksi`;
+      }
+    }
+
+    function resetForm() {
+      document.getElementById('formTambah').reset();
+      document.getElementById('amountPreview').textContent = '';
+    }
+
+    // ===================================================
+    // REFRESH ALL
+    // ===================================================
+    async function refreshAll() {
+      await Promise.all([loadSummary(), loadLedger()]);
+    }
+
+    // ===================================================
+    // INIT
+    // ===================================================
+    // Set default date to today
+    const today = new Date().toISOString().slice(0, 10);
+    document.getElementById('f-tanggal').value = today;
+
+    // Load data if access granted
+    if (document.getElementById('mainContent').style.display !== 'none') {
+      refreshAll();
+    }
+  </script>
+</body>
+
+</html>

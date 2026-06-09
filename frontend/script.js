@@ -16,6 +16,12 @@ function logout() {
 
 // ===== NAVIGASI =====
 function showPage(pageId) {
+  const role = localStorage.getItem('gateway_role') || 'end_user';
+  if (pageId === 'transaksi' && role === 'operator') {
+    showToast('Akses Ditolak: Operator tidak diizinkan mengirim transaksi.', 'error');
+    return;
+  }
+
   document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
 
@@ -192,6 +198,28 @@ function resetForm() {
   showToast('Form direset', 'info');
 }
 
+// ===== RBAC INITIALIZATION =====
+function initRBAC() {
+  const role = localStorage.getItem('gateway_role') || 'end_user';
+  
+  // 1. Hide/show sidebar elements based on data-roles attribute
+  document.querySelectorAll('.nav-item').forEach(item => {
+    const rolesAllowed = item.getAttribute('data-roles');
+    if (rolesAllowed) {
+      const allowedList = rolesAllowed.split(',').map(r => r.trim());
+      if (!allowedList.includes(role)) {
+        item.style.display = 'none';
+      }
+    }
+  });
+
+  // 2. Hide/show quick action buttons inside dashboard
+  const btnQuickTransaksi = document.getElementById('btnQuickTransaksi');
+  if (btnQuickTransaksi && role === 'operator') {
+    btnQuickTransaksi.style.display = 'none';
+  }
+}
+
 // ===== FEE PREVIEW (TRANSAKSI) =====
 document.addEventListener('DOMContentLoaded', function() {
   const amountInput = document.getElementById('txAmount');
@@ -211,11 +239,25 @@ document.addEventListener('DOMContentLoaded', function() {
   cekServer();
   setInterval(cekServer, 15000);
 
-  // Display user name
+  // Initialize RBAC (hiding sidebar menu items)
+  initRBAC();
+
+  // Display user name and role
   const userName = localStorage.getItem('gateway_user');
+  const userRole = localStorage.getItem('gateway_role');
   if (userName) {
     const el = document.getElementById('userName');
     if (el) el.textContent = userName;
+  }
+  if (userRole) {
+    const roleEl = document.querySelector('.user-role');
+    if (roleEl) {
+      let roleLabel = 'Konsumen';
+      if (userRole === 'admin') roleLabel = '👑 Admin';
+      else if (userRole === 'operator') roleLabel = '⚙️ Operator';
+      else if (userRole === 'end_user') roleLabel = '👤 End User';
+      roleEl.textContent = roleLabel;
+    }
   }
 });
 

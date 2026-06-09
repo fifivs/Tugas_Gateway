@@ -9,7 +9,7 @@ DB_CONFIG = {
     "port": 3306,
     "user": "root",
     "password": "",
-    "db": "TugasGateway",
+    "db": "tugasgateaway",
 }
 
 # ==========================================
@@ -28,8 +28,8 @@ async def init_db():
         )
         async with conn.cursor() as cur:
             # Buat database kalau belum ada
-            await cur.execute("CREATE DATABASE IF NOT EXISTS TugasGateway")
-            await cur.execute("USE TugasGateway")
+            await cur.execute("CREATE DATABASE IF NOT EXISTS TugasGateaway")
+            await cur.execute("USE TugasGateaway")
 
             # Tabel 1: logs_transaksi (lama)
             await cur.execute("""
@@ -127,9 +127,11 @@ async def init_db():
                 print("[OK] Seed data 4 paket harga berhasil dimasukkan!")
 
         conn.close()
-        print("[OK] Database TugasGateway & semua tabel siap!")
+        print("[OK] Database TugasGateaway & semua tabel siap!")
         # Buat tabel backtracking_log
         await init_backtracking_table()
+        # Buat tabel financial_ledger
+        await init_financial_table()
     except Exception as e:
         print(f"[ERROR] Gagal init database: {e}")
 
@@ -675,3 +677,261 @@ async def get_backtracking_stats():
     except Exception as e:
         print(f"[ERROR] Gagal ambil backtracking stats: {e}")
         return {"error": str(e)}
+
+
+# ==========================================
+# FUNGSI FINANCIAL LEDGER — Pembukuan & Neraca
+# ==========================================
+
+async def init_financial_table():
+    """Buat tabel financial_ledger kalau belum ada (dipanggil dari init_db)"""
+    try:
+        conn = await get_conn()
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                CREATE TABLE IF NOT EXISTS financial_ledger (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    tanggal DATETIME NOT NULL,
+                    tipe VARCHAR(20) NOT NULL COMMENT 'pemasukan | pengeluaran | aset | kewajiban',
+                    kategori VARCHAR(50) NOT NULL,
+                    deskripsi VARCHAR(255) NOT NULL,
+                    jumlah DECIMAL(15,2) NOT NULL,
+                    user_id VARCHAR(100) NOT NULL,
+                    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+
+            # Seed data awal jika tabel kosong
+            await cur.execute("SELECT COUNT(*) as c FROM financial_ledger")
+            row = await cur.fetchone()
+            if row[0] == 0:
+                from datetime import date
+                today = date.today().isoformat()
+                await cur.executemany("""
+                    INSERT INTO financial_ledger (tanggal, tipe, kategori, deskripsi, jumlah, user_id)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, [
+                    (today, 'aset',        'Modal Awal',       'Modal awal pendirian API Gateway',          5000000,  'admin_gateway'),
+                    (today, 'aset',        'Perangkat Keras',  'Pembelian server & perangkat jaringan',     3000000,  'admin_gateway'),
+                    (today, 'pengeluaran', 'Biaya Cloud',      'Sewa VPS / cloud hosting bulanan',          500000,   'admin_gateway'),
+                    (today, 'pengeluaran', 'Biaya Listrik',    'Tagihan listrik kantor bulan ini',          250000,   'admin_gateway'),
+                    (today, 'kewajiban',   'Hutang Vendor',    'Cicilan software lisensi middleware',       1000000,  'admin_gateway'),
+                    (today, 'pemasukan',   'Paket Langganan',  'Pembayaran langganan aplikasi client',      750000,   'admin_gateway'),
+                ])
+                print("[OK] Seed data financial_ledger berhasil dimasukkan!")
+
+        conn.close()
+        print("[OK] Tabel financial_ledger siap!")
+    except Exception as e:
+        print(f"[ERROR] Gagal buat tabel financial_ledger: {e}")
+
+
+async def get_financial_ledger():
+    """Ambil semua transaksi dari financial_ledger, diurutkan terbaru"""
+    try:
+        conn = await get_conn()
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            await cur.execute("""
+                SELECT id, tanggal, tipe, kategori, deskripsi, jumlah, user_id, created_at
+                FROM financial_ledger
+                ORDER BY tanggal DESC, created_at DESC
+            """)
+            rows = await cur.fetchall()
+        conn.close()
+        for r in rows:
+            if r.get("tanggal"):
+                r["tanggal"] = r["tanggal"].isoformat() if hasattr(r["tanggal"], 'isoformat') else str(r["tanggal"])
+            if r.get("created_at"):
+                r["created_at"] = r["created_at"].isoformat() if hasattr(r["created_at"], 'isoformat') else str(r["created_at"])
+            r["jumlah"] = float(r["jumlah"])
+        return list(rows)
+    except Exception as e:
+        print(f"[ERROR] Gagal ambil ledger: {e}")
+        return []
+
+
+async def add_financial_entry(tipe: str, kategori: str, deskripsi: str, jumlah: float, user_id: str, tanggal: str = None):
+    """Tambahkan entri baru ke financial_ledger"""
+    from datetime import date
+    try:
+        tgl = tanggal if tanggal else date.today().isoformat()
+        conn = await get_conn()
+        async with conn.cursor() as cur:
+            await cur.execute("""
+                INSERT INTO financial_ledger (tanggal, tipe, kategori, deskripsi, jumlah, user_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (tgl, tipe, kategori, deskripsi, jumlah, user_id))
+            new_id = cur.lastrowid
+        conn.close()
+        print(f"[OK] Entri keuangan baru ({tipe} - {deskripsi}) berhasil ditambahkan!")
+        return {"sukses": True, "id": new_id, "pesan": "Entri berhasil disimpan"}
+    except Exception as e:
+        print(f"[ERROR] Gagal tambah entri: {e}")
+        return {"sukses": False, "pesan": str(e)}
+
+
+async def delete_financial_entry(entry_id: int):
+    """Hapus entri dari financial_ledger berdasarkan ID"""
+    try:
+        conn = await get_conn()
+        async with conn.cursor() as cur:
+            await cur.execute("SELECT id FROM financial_ledger WHERE id = %s", (entry_id,))
+            existing = await cur.fetchone()
+            if not existing:
+                conn.close()
+                return {"sukses": False, "pesan": f"Entri ID {entry_id} tidak ditemukan"}
+            await cur.execute("DELETE FROM financial_ledger WHERE id = %s", (entry_id,))
+        conn.close()
+        print(f"[OK] Entri keuangan ID {entry_id} berhasil dihapus!")
+        return {"sukses": True, "pesan": f"Entri ID {entry_id} berhasil dihapus"}
+    except Exception as e:
+        print(f"[ERROR] Gagal hapus entri: {e}")
+        return {"sukses": False, "pesan": str(e)}
+
+
+async def get_financial_summary():
+    """
+    Hitung ringkasan keuangan secara real-time:
+    - Laba Rugi: Pemasukan Manual + Pendapatan Gateway Fee (otomatis) - Pengeluaran
+    - Neraca: Total Aset vs Total Kewajiban + Ekuitas
+    """
+    try:
+        conn = await get_conn()
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            # 1. Ambil total per tipe dari manual ledger
+            await cur.execute("""
+                SELECT tipe, COALESCE(SUM(jumlah), 0) as total
+                FROM financial_ledger
+                GROUP BY tipe
+            """)
+            tipe_rows = await cur.fetchall()
+            tipe_totals = {r["tipe"]: float(r["total"]) for r in tipe_rows}
+
+            # 2. Hitung pendapatan otomatis dari fee gateway (transaksi sukses)
+            await cur.execute("""
+                SELECT COALESCE(SUM(fee), 0) as total_fee
+                FROM api_request_log
+                WHERE status_gateway = 'SUCCESS'
+            """)
+            fee_row = await cur.fetchone()
+            pendapatan_gateway_fee = float(fee_row["total_fee"])
+
+            # 3. Hitung pendapatan otomatis dari paket langganan terdaftar
+            await cur.execute("""
+                SELECT COALESCE(SUM(pp.harga_per_bulan), 0) as total_langganan
+                FROM registered_apps ra
+                JOIN pricing_plans pp ON ra.nama_paket = pp.nama_paket
+                WHERE ra.status = 'aktif' AND pp.harga_per_bulan > 0
+            """)
+            langganan_row = await cur.fetchone()
+            pendapatan_langganan = float(langganan_row["total_langganan"])
+
+            # 4. Hitung jumlah app aktif
+            await cur.execute("SELECT COUNT(*) as c FROM registered_apps WHERE status = 'aktif'")
+            app_aktif = (await cur.fetchone())["c"]
+
+        conn.close()
+
+        pemasukan_manual  = tipe_totals.get('pemasukan', 0.0)
+        pengeluaran       = tipe_totals.get('pengeluaran', 0.0)
+        total_aset        = tipe_totals.get('aset', 0.0)
+        total_kewajiban   = tipe_totals.get('kewajiban', 0.0)
+
+        total_pemasukan   = pemasukan_manual + pendapatan_gateway_fee + pendapatan_langganan
+        laba_bersih       = total_pemasukan - pengeluaran
+        ekuitas           = total_aset - total_kewajiban
+
+        return {
+            "laba_rugi": {
+                "pemasukan_manual":       pemasukan_manual,
+                "pendapatan_gateway_fee": pendapatan_gateway_fee,
+                "pendapatan_langganan":   pendapatan_langganan,
+                "total_pemasukan":        total_pemasukan,
+                "total_pengeluaran":      pengeluaran,
+                "laba_bersih":            laba_bersih,
+            },
+            "neraca": {
+                "total_aset":       total_aset,
+                "total_kewajiban":  total_kewajiban,
+                "ekuitas":          ekuitas,
+            },
+            "info": {
+                "app_aktif":           app_aktif,
+                "pendapatan_gateway":   pendapatan_gateway_fee,
+            }
+        }
+    except Exception as e:
+        print(f"[ERROR] Gagal ambil financial summary: {e}")
+        return {"error": str(e)}
+
+
+async def autentikasi_user(username: str, password_raw: str, ip_address: str = None, user_agent: str = None):
+    """
+    Memverifikasi username & password (bcrypt) dengan data di database.
+    Jika sukses, mencatat log aktivitas login dan memperbarui last_login.
+    """
+    import bcrypt
+    import json
+    try:
+        conn = await get_conn()
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            # Cari user berdasarkan username beserta role-nya
+            await cur.execute("""
+                SELECT u.id, u.username, u.email, u.password_hash, u.full_name, u.status, r.nama_role 
+                FROM users u
+                JOIN roles r ON u.role_id = r.id
+                WHERE u.username = %s
+            """, (username,))
+            user = await cur.fetchone()
+
+            if not user:
+                conn.close()
+                return {"sukses": False, "pesan": "Username tidak ditemukan."}
+
+            if user["status"] != "aktif":
+                conn.close()
+                return {"sukses": False, "pesan": f"Akun Anda berstatus '{user['status']}'. Silakan hubungi admin."}
+
+            # Verifikasi password dengan bcrypt
+            pw_input_bytes = password_raw.encode('utf-8')
+            db_hash = user["password_hash"]
+            # Ganti prefix $2y$ (PHP) menjadi $2b$ agar didukung oleh library bcrypt Python
+            if db_hash.startswith('$2y$'):
+                db_hash = '$2b$' + db_hash[4:]
+            pw_hash_bytes = db_hash.encode('utf-8')
+
+            if not bcrypt.checkpw(pw_input_bytes, pw_hash_bytes):
+                conn.close()
+                return {"sukses": False, "pesan": "Password salah."}
+
+            # Login Sukses: Update last_login
+            await cur.execute("""
+                UPDATE users SET last_login = %s WHERE id = %s
+            """, (datetime.now(), user["id"]))
+
+            # Catat ke user_activity_log
+            detail_log = json.dumps({
+                "ip": ip_address,
+                "user_agent": user_agent,
+                "timestamp": datetime.now().isoformat()
+            })
+            await cur.execute("""
+                INSERT INTO user_activity_log (user_id, username, aksi, detail, ip_address)
+                VALUES (%s, %s, 'login', %s, %s)
+            """, (user["id"], user["username"], detail_log, ip_address))
+
+        conn.close()
+        return {
+            "sukses": True,
+            "pesan": "Login berhasil!",
+            "user": {
+                "id": user["id"],
+                "username": user["username"],
+                "email": user["email"],
+                "full_name": user["full_name"],
+                "role": user["nama_role"]
+            }
+        }
+    except Exception as e:
+        print(f"[ERROR] Gagal melakukan autentikasi: {e}")
+        return {"sukses": False, "pesan": f"Terjadi kesalahan server: {str(e)}"}
