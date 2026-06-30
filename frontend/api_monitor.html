@@ -8,15 +8,15 @@
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
   :root {
-    --bg: #0a0e1a;
-    --bg2: #0f1524;
-    --card: #131929;
-    --border: #1e2d4a;
-    --accent: #3b82f6;
-    --accent2: #06d6a0;
-    --danger: #ef4444;
+    --bg: #f4f6fb;
+    --bg2: #ffffff;
+    --card: #ffffff;
+    --border: #e2e8f4;
+    --accent: #4f7ef8;
+    --accent2: #10b981;
+    --danger: #f43f5e;
     --warn: #f59e0b;
-    --text: #e2e8f0;
+    --text: #0f172a;
     --muted: #64748b;
   }
 
@@ -97,9 +97,9 @@
 
   .app-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
   .app-info { display: flex; align-items: center; gap: 10px; }
-  .app-emoji { font-size: 24px; }
-  .app-name { font-weight: 700; font-size: 14px; }
-  .app-group { font-size: 11px; color: var(--muted); }
+  .app-emoji { font-size: 14px; font-weight: 800; background: #e8effe; color: var(--accent); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border-radius: 8px; flex-shrink: 0; }
+  .app-name { font-weight: 800; font-size: 14px; }
+  .app-group { font-size: 11px; color: var(--muted); font-weight: 600; }
 
   .status-dot {
     width: 10px; height: 10px; border-radius: 50%;
@@ -157,9 +157,9 @@
   table { width: 100%; border-collapse: collapse; font-size: 12px; }
   th { padding: 10px 16px; text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: var(--bg2); }
   td { padding: 10px 16px; border-bottom: 1px solid rgba(30,45,74,0.4); }
-  tr:hover td { background: rgba(59,130,246,0.03); }
+  tr:hover td { background: var(--bg); }
 
-  .badge { padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .badge { padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; }
   .badge-ok { background: rgba(6,214,160,0.15); color: var(--accent2); }
   .badge-fail { background: rgba(239,68,68,0.15); color: var(--danger); }
   .badge-warn { background: rgba(245,158,11,0.15); color: var(--warn); }
@@ -387,7 +387,7 @@ const apps = [
     id: 'gateway',
     name: 'API Gateway',
     group: 'Kelompok 7',
-    emoji: '⚡',
+    emoji: 'GW',
     baseUrl: GATEWAY,
     endpoints: [
       { method: 'GET', path: '/generate_token_tester/test_user', label: 'Generate Token' },
@@ -399,7 +399,7 @@ const apps = [
     id: 'smartbank',
     name: 'SmartBank',
     group: 'Kelompok 1',
-    emoji: '🏦',
+    emoji: 'SB',
     baseUrl: 'http://127.0.0.1:8001',
     endpoints: [
       { method: 'POST', path: '/smartbank/pembayaran_transaksi', label: 'Pembayaran', body: { user_id: 'test', parameter: {} } },
@@ -410,7 +410,7 @@ const apps = [
     id: 'marketplace',
     name: 'Marketplace',
     group: 'Kelompok 2',
-    emoji: '🛍️',
+    emoji: 'MP',
     baseUrl: 'http://127.0.0.1:8002',
     endpoints: [
       { method: 'POST', path: '/marketplace/browse_produk', label: 'Browse Produk', body: { user_id: 'test', parameter: {} } },
@@ -421,7 +421,7 @@ const apps = [
     id: 'pos',
     name: 'POS (WarungPOS)',
     group: 'Kelompok 3',
-    emoji: '🏪',
+    emoji: 'POS',
     baseUrl: 'http://127.0.0.1:8003',
     endpoints: [
       { method: 'POST', path: '/pos/input_transaksi', label: 'Input Transaksi', body: { user_id: 'test', parameter: {} } },
@@ -432,7 +432,7 @@ const apps = [
     id: 'supplier',
     name: 'SupplierHub',
     group: 'Kelompok 4',
-    emoji: '📦',
+    emoji: 'SH',
     baseUrl: 'http://127.0.0.1:8004',
     endpoints: [
       { method: 'POST', path: '/supplierhub/order_bahan', label: 'Order Bahan', body: { user_id: 'test', parameter: {} } },
@@ -443,7 +443,7 @@ const apps = [
     id: 'logistik',
     name: 'LogistiKita',
     group: 'Kelompok 5',
-    emoji: '🚚',
+    emoji: 'LK',
     baseUrl: 'http://127.0.0.1:8005',
     endpoints: [
       { method: 'POST', path: '/logistikita/request_pengiriman', label: 'Request Kirim', body: { user_id: 'test', parameter: {} } },

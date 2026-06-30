@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Health Check — API Gateway</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
     .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
@@ -101,9 +101,9 @@
 
   <script src="/static/tool_common.js"></script>
   <script>
-    const SVG_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
-    const SVG_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
-    const SVG_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
+    const SVG_OK   = '<span class="status-pill" style="background:var(--brand-emerald);"></span>';
+    const SVG_ERR  = '<span class="status-pill" style="background:var(--brand-rose);"></span>';
+    const SVG_PEND = '<span class="status-pill" style="background:var(--brand-amber);"></span>';
 
     configureBackLink('nav_back');
     const resp       = document.getElementById('resp');

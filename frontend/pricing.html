@@ -4,14 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Pricing Plans — API Gateway</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 1080px; margin: 0 auto; padding: 28px 20px 48px; }
     .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .plans-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
     .plan-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glass);
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-light);
       border-radius: var(--radius-lg);
       padding: 22px 20px;
       transition: var(--transition);
@@ -23,13 +23,13 @@
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 3px;
-      background: var(--gradient-primary);
+      background: var(--gradient-brand);
     }
     .plan-card:hover { transform: translateY(-3px); border-color: rgba(99,102,241,0.25); box-shadow: var(--shadow-md); }
-    .plan-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; color: var(--text-primary); }
-    .plan-price { font-size: 22px; font-weight: 700; color: var(--accent-cyan); margin-bottom: 14px; }
-    .plan-line { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
-    .plan-line-icon { width: 16px; height: 16px; stroke: var(--accent-emerald); fill: none; stroke-width: 2.5; flex-shrink: 0; }
+    .plan-name { font-size: 18px; font-weight: 800; margin-bottom: 4px; color: var(--text-primary); }
+    .plan-price { font-size: 24px; font-weight: 800; color: var(--brand-blue); margin-bottom: 14px; letter-spacing: -0.5px; }
+    .plan-line { font-size: 13.5px; color: var(--text-secondary); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+    .plan-line-icon { width: 16px; height: 16px; stroke: var(--brand-emerald); fill: none; stroke-width: 2.5; flex-shrink: 0; }
   </style>
 </head>
 <body>

@@ -4,19 +4,19 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Fee Calculator — API Gateway</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
     .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
     .result-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .mini {
-      background: var(--bg-glass); border: 1px solid var(--border-glass);
+      background: var(--bg-surface-2); border: 1.5px solid var(--border-light);
       border-radius: var(--radius-md); padding: 18px 20px;
     }
-    .mini-label { font-size: 11.5px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-    .mini-value { font-size: 24px; font-weight: 700; color: var(--text-primary); }
-    .mini.blue .mini-value { color: var(--accent-blue-light); }
-    .mini.green .mini-value { color: var(--accent-emerald); }
+    .mini-label { font-size: 11.5px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+    .mini-value { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+    .mini.blue .mini-value { color: var(--brand-blue); }
+    .mini.green .mini-value { color: var(--brand-emerald); }
     @media (max-width: 760px) { .result-grid { grid-template-columns: 1fr; } }
   </style>
 </head>
@@ -96,9 +96,9 @@
 
   <script src="/static/tool_common.js"></script>
   <script>
-    const SVG_OK   = '<span class="status-pill" style="background:var(--accent-emerald);"></span>';
-    const SVG_ERR  = '<span class="status-pill" style="background:var(--accent-rose);"></span>';
-    const SVG_PEND = '<span class="status-pill" style="background:var(--accent-amber);"></span>';
+    const SVG_OK   = '<span class="status-pill" style="background:var(--brand-emerald);"></span>';
+    const SVG_ERR  = '<span class="status-pill" style="background:var(--brand-rose);"></span>';
+    const SVG_PEND = '<span class="status-pill" style="background:var(--brand-amber);"></span>';
 
     configureBackLink('nav_back');
     const resp       = document.getElementById('resp');

@@ -679,6 +679,51 @@ async def get_backtracking_stats():
         return {"error": str(e)}
 
 
+async def get_error_rate_for_url(url_pattern: str, limit: int = 20) -> float:
+    """
+    Ambil error rate historis untuk kandidat route tertentu dari api_health_log.
+    Digunakan oleh Smart Score heuristic di routing_service.
+
+    Args:
+        url_pattern : Substring URL kandidat (misal "127.0.0.1:8000")
+        limit       : Jumlah entri terakhir yang diperiksa (default 20)
+
+    Returns:
+        float error_rate [0.0 - 1.0]
+        - 0.0 = selalu sukses
+        - 1.0 = selalu gagal
+        - 0.5 = default jika belum ada data (netral)
+    """
+    try:
+        conn = await get_conn()
+        async with conn.cursor(aiomysql.DictCursor) as cur:
+            await cur.execute("""
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'online' THEN 1 ELSE 0 END) as sukses
+                FROM (
+                    SELECT status FROM api_health_log
+                    WHERE endpoint LIKE %s
+                    ORDER BY timestamp DESC
+                    LIMIT %s
+                ) AS recent
+            """, (f"%{url_pattern}%", limit))
+            row = await cur.fetchone()
+        conn.close()
+
+        total = row["total"] if row and row["total"] else 0
+        if total == 0:
+            return 0.5  # Default netral — belum ada data historis
+
+        sukses = row["sukses"] if row and row["sukses"] else 0
+        error_rate = 1.0 - (sukses / total)
+        return round(error_rate, 4)
+
+    except Exception as e:
+        print(f"[WARN] Gagal ambil error rate untuk {url_pattern}: {e}")
+        return 0.5  # Default netral jika DB error
+
+
 # ==========================================
 # FUNGSI FINANCIAL LEDGER — Pembukuan & Neraca
 # ==========================================

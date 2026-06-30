@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="API Gateway UMKM - Dashboard Integrator untuk manajemen transaksi dan routing">
   <title>API Gateway — Dashboard</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
 </head>
 
 <body>
@@ -268,9 +268,9 @@
               <div class="step-label">Konsumen</div>
             </div>
             <div class="flow-arrow">→</div>
-            <div class="flow-step" style="border-color: rgba(245,158,11,0.3);">
-              <div class="step-icon-box" style="background: rgba(245,158,11,0.1);">
-                <svg viewBox="0 0 24 24" style="stroke: var(--accent-amber);"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
+            <div class="flow-step" style="border-color: rgba(245,158,11,0.25);">
+              <div class="step-icon-box" style="background: var(--brand-amber-light);">
+                <svg viewBox="0 0 24 24" style="stroke: var(--brand-amber);"><circle cx="12" cy="12" r="10"/><line x1="10" y1="15" x2="10" y2="9"/><line x1="14" y1="15" x2="14" y2="9"/></svg>
               </div>
               <div class="step-label">Rate Limit</div>
             </div>
@@ -296,9 +296,9 @@
               <div class="step-label">Hitung Fee</div>
             </div>
             <div class="flow-arrow">→</div>
-            <div class="flow-step" style="border-color: rgba(99,102,241,0.3);">
-              <div class="step-icon-box" style="background: rgba(99,102,241,0.1);">
-                <svg viewBox="0 0 24 24" style="stroke: var(--accent-blue-light);"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <div class="flow-step" style="border-color: rgba(79,126,248,0.25);">
+              <div class="step-icon-box" style="background: var(--brand-blue-light);">
+                <svg viewBox="0 0 24 24" style="stroke: var(--brand-blue);"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               </div>
               <div class="step-label">App Tujuan</div>
             </div>
@@ -541,9 +541,9 @@
           </div>
 
           <div style="margin-top: 14px;">
-            <div class="fee-display" style="background: rgba(16,185,129,0.05); border-color: rgba(16,185,129,0.15);">
+            <div class="fee-display" style="background: #f0fdf4; border-color: #bbf7d0;">
               <span class="fee-label">Total yang Diteruskan ke SmartBank</span>
-              <span class="fee-value" id="feeNet" style="color: var(--accent-emerald);">Rp 0</span>
+              <span class="fee-value" id="feeNet" style="color: var(--brand-emerald);">Rp 0</span>
             </div>
           </div>
         </div>
@@ -956,7 +956,7 @@
             <tr>
               <td><strong>${app.app_id}</strong></td>
               <td>${app.kelompok}</td>
-              <td><code style="font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--accent-cyan);">${app.base_url}</code></td>
+              <td><code style="font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--brand-blue);">${app.base_url}</code></td>
               <td><code style="font-size:12px; font-family:'JetBrains Mono',monospace; color:var(--text-muted);">${app.default_endpoint}</code></td>
             </tr>`).join('');
         }

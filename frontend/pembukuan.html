@@ -11,21 +11,21 @@
     rel="stylesheet">
   <style>
     :root {
-      --bg-primary: #0a0e1a;
-      --bg-secondary: #0f1526;
-      --bg-card: rgba(255, 255, 255, 0.04);
-      --bg-card-hover: rgba(255, 255, 255, 0.07);
-      --border: rgba(255, 255, 255, 0.08);
-      --border-active: rgba(99, 102, 241, 0.5);
-      --text-primary: #f0f4ff;
-      --text-secondary: #8892a4;
-      --text-muted: #505a72;
-      --accent: #6366f1;
+      --bg-primary: #f4f6fb;
+      --bg-secondary: #ffffff;
+      --bg-card: #ffffff;
+      --bg-card-hover: #f9fafb;
+      --border: #e2e8f4;
+      --border-active: #4f7ef8;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --accent: #4f7ef8;
       --accent-light: #818cf8;
-      --green: #22c55e;
-      --green-dim: rgba(34, 197, 94, 0.15);
-      --red: #ef4444;
-      --red-dim: rgba(239, 68, 68, 0.15);
+      --green: #10b981;
+      --green-dim: rgba(16, 185, 129, 0.15);
+      --red: #f43f5e;
+      --red-dim: rgba(244, 63, 94, 0.15);
       --yellow: #f59e0b;
       --yellow-dim: rgba(245, 158, 11, 0.15);
       --blue: #3b82f6;
@@ -479,8 +479,8 @@
     input,
     select,
     textarea {
-      background: rgba(255, 255, 255, .05);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       color: var(--text-primary);
       padding: 10px 13px;
@@ -499,7 +499,7 @@
     }
 
     select option {
-      background: #1a2035;
+      background: #ffffff;
     }
 
     .form-actions {
@@ -559,8 +559,8 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255, 255, 255, .04);
-      border: 1px solid var(--border);
+      background: #ffffff;
+      border: 1.5px solid var(--border);
       border-radius: 8px;
       padding: 0 12px;
     }
@@ -613,7 +613,7 @@
     .data-table td {
       padding: 12px 16px;
       font-size: 13px;
-      border-bottom: 1px solid rgba(255, 255, 255, .04);
+      border-bottom: 1px solid var(--border);
       vertical-align: middle;
     }
 
@@ -622,7 +622,7 @@
     }
 
     .data-table tbody tr:hover {
-      background: rgba(255, 255, 255, .03);
+      background: var(--bg-card-hover);
     }
 
     .data-table tbody tr:last-child td {
@@ -726,7 +726,7 @@
       display: flex;
       justify-content: space-between;
       padding: 9px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, .03);
+      border-bottom: 1px solid var(--border);
       font-size: 13px;
     }
 
@@ -878,7 +878,7 @@
 
   <!-- Access Denied Overlay -->
   <div id="accessDenied">
-    <div class="deny-icon">🔒</div>
+    <div class="deny-icon"></div>
     <h2>Akses Ditolak</h2>
     <p>Halaman ini hanya dapat diakses oleh <strong>Admin</strong> dan <strong>Operator</strong>.</p>
     <button onclick="window.location.href='/dashboard'">Kembali ke Dashboard</button>
@@ -1024,10 +1024,10 @@
                 <label for="f-tipe">Tipe Transaksi *</label>
                 <select id="f-tipe" required>
                   <option value="">-- Pilih Tipe --</option>
-                  <option value="pemasukan">💚 Pemasukan</option>
+                  <option value="pemasukan"> Pemasukan</option>
                   <option value="pengeluaran">❤️ Pengeluaran</option>
-                  <option value="aset">💙 Aset</option>
-                  <option value="kewajiban">🟡 Kewajiban</option>
+                  <option value="aset"> Aset</option>
+                  <option value="kewajiban"> Kewajiban</option>
                 </select>
               </div>
               <div class="form-group">
@@ -1270,18 +1270,18 @@
       // Laba Rugi Tab
       document.getElementById('labarugiContent').innerHTML = `
     <div class="report-section">
-      <div class="report-title">📈 Pendapatan</div>
+      <div class="report-title"> Pendapatan</div>
       <div class="report-row"><span class="label">Pemasukan Manual</span><span class="value green">${fmt(lr.pemasukan_manual)}</span></div>
       <div class="report-row"><span class="label">Pendapatan Gateway Fee (Otomatis)</span><span class="value green">${fmt(lr.pendapatan_gateway_fee)}</span></div>
       <div class="report-row"><span class="label">Pendapatan Paket Langganan (Otomatis)</span><span class="value green">${fmt(lr.pendapatan_langganan)}</span></div>
       <div class="report-row total"><span class="label">Total Pemasukan</span><span class="value positive">${fmt(lr.total_pemasukan)}</span></div>
     </div>
     <div class="report-section">
-      <div class="report-title">📉 Beban & Pengeluaran</div>
+      <div class="report-title"> Beban & Pengeluaran</div>
       <div class="report-row"><span class="label">Total Pengeluaran</span><span class="value red">${fmt(lr.total_pengeluaran)}</span></div>
     </div>
     <div class="report-row total" style="margin-top:12px;">
-      <span class="label">🏆 Laba Bersih</span>
+      <span class="label"> Laba Bersih</span>
       <span class="value ${lr.laba_bersih >= 0 ? 'positive' : 'negative'}">${fmt(lr.laba_bersih)}</span>
     </div>
   `;
@@ -1290,12 +1290,12 @@
       const ekuitas = nr.ekuitas;
       document.getElementById('neracaContent').innerHTML = `
     <div>
-      <div class="report-title">🏦 Aset</div>
+      <div class="report-title"> Aset</div>
       <div class="report-row"><span class="label">Total Aset Tercatat</span><span class="value blue">${fmt(nr.total_aset)}</span></div>
       <div class="report-row total"><span class="label">Total Aset</span><span class="value blue">${fmt(nr.total_aset)}</span></div>
     </div>
     <div>
-      <div class="report-title">📋 Kewajiban &amp; Ekuitas</div>
+      <div class="report-title"> Kewajiban &amp; Ekuitas</div>
       <div class="report-row"><span class="label">Total Kewajiban</span><span class="value yellow">${fmt(nr.total_kewajiban)}</span></div>
       <div class="report-row"><span class="label">Ekuitas (Aset - Kewajiban)</span><span class="value ${ekuitas >= 0 ? 'green' : 'red'}">${fmt(ekuitas)}</span></div>
       <div class="report-row total"><span class="label">Kewajiban + Ekuitas</span><span class="value ${nr.total_kewajiban + ekuitas >= 0 ? 'green' : 'red'}">${fmt(nr.total_kewajiban + ekuitas)}</span></div>

@@ -29,7 +29,15 @@ from services.log_service import (
     delete_financial_entry,
     get_financial_summary,
 )
-from services.routing_service import teruskan_ke_smartbank, teruskan_ke_app, get_daftar_app, route_dengan_backtracking, get_route_candidates_info
+from services.routing_service import (
+    teruskan_ke_smartbank,
+    teruskan_ke_app,
+    get_daftar_app,
+    route_dengan_backtracking,
+    get_route_candidates_info,
+    route_dengan_round_robin,
+    get_rr_stats,
+)
 from collections import defaultdict
 import time
 import os
@@ -258,11 +266,38 @@ async def routing_api(req: RequestFormat):
         "fee_gateway": fee,
         "metadata": req.parameter
     }
-    hasil_bank = await teruskan_ke_smartbank(data_untuk_bank)
+
+    # ── ROUND ROBIN Dinamis (Bisa ke app selain smartbank jika diminta) ──────────────
+    # Kalau yang dipilih RR gagal, otomatis backtrack ke kandidat lain.
+    target_app = req.parameter.get("target_app", "smartbank") if req.parameter else "smartbank"
+    hasil_rr = await route_dengan_round_robin(target_app, data_untuk_bank)
+
+    # Ekstrak status dan hasil akhir
+    if hasil_rr.get("status") == "sukses":
+        hasil_bank      = hasil_rr.get("data", {})
+        smartbank_status = "sukses"
+        
+        routing_mode = hasil_rr.get("routing_mode", "round_robin")
+        # Jika RR gagal dan di-kickback ke backtracking, candidate info ada di 'rr_candidate_tried'
+        kandidat_terpakai = hasil_rr.get("rr_candidate_used")
+        if not kandidat_terpakai:
+            kandidat_terpakai = hasil_rr.get("rr_candidate_tried", "unknown")
+            
+        rr_info = {
+            "routing_mode":      routing_mode,
+            "rr_candidate_used": kandidat_terpakai,
+            "latency_ms":        hasil_rr.get("latency_ms", 0),
+        }
+    else:
+        hasil_bank       = hasil_rr
+        smartbank_status = "gagal"
+        rr_info = {
+            "routing_mode":       hasil_rr.get("routing_mode", "round_robin"),
+            "rr_candidate_tried": hasil_rr.get("rr_candidate_tried", "unknown"),
+        }
 
     elapsed_ms = int((time.time() - start_time) * 1000)
     source_app = req.parameter.get("source_app", "unknown") if req.parameter else "unknown"
-    smartbank_status = hasil_bank.get("status", "gagal") if isinstance(hasil_bank, dict) else "gagal"
 
     await catat_request_log(
         user_id=req.user_id,
@@ -286,6 +321,7 @@ async def routing_api(req: RequestFormat):
     return ResponseFormat(status="sukses", data={
         "integrator_note": "Request divalidasi & log tersimpan di MySQL",
         "fee_diambil": fee,
+        "round_robin": rr_info,
         "respons_dari_smartbank": hasil_bank
     })
 
@@ -482,7 +518,7 @@ async def routing_backtracking(req: RequestFormat):
     )
 
     return ResponseFormat(status=hasil.get("status", "gagal"), data={
-        "algoritma": "backtracking",
+        "algoritma": hasil.get("algoritma", "informed_backtracking_smart_score"),
         "target_app": target_app,
         "route_used": hasil.get("route_used", "none"),
         "route_url": hasil.get("route_url", "-"),
@@ -491,8 +527,15 @@ async def routing_backtracking(req: RequestFormat):
         "fee_gateway": fee,
         "response_time_ms": elapsed_ms,
         "trace": hasil.get("trace", []),
+        "probe_results": hasil.get("probe_results", []),
         "respons_dari_app": hasil.get("data", hasil.get("pesan", "No response"))
     })
+
+
+@app.get("/integrator/rr-stats")
+def rr_stats_endpoint():
+    """Lihat statistik Round Robin — distribusi request per kandidat per app"""
+    return {"status": "sukses", "data": get_rr_stats()}
 
 
 @app.get("/monitor/backtracking-stats")

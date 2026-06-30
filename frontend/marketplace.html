@@ -8,17 +8,17 @@
   @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
   :root {
-    --bg: #0a0e1a;
-    --bg2: #0f1524;
-    --card: #131929;
-    --border: #1e2d4a;
-    --accent: #3b82f6;
-    --accent2: #06d6a0;
-    --danger: #ef4444;
+    --bg: #f4f6fb;
+    --bg2: #ffffff;
+    --card: #ffffff;
+    --border: #e2e8f4;
+    --accent: #4f7ef8;
+    --accent2: #10b981;
+    --danger: #f43f5e;
     --warn: #f59e0b;
-    --text: #e2e8f0;
+    --text: #0f172a;
     --muted: #64748b;
-    --sidebar: #0d1220;
+    --sidebar: #ffffff;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -59,7 +59,7 @@
     font-size: 18px;
   }
 
-  .brand-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: #fff; }
+  .brand-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 16px; color: var(--text); }
   .brand-sub { font-size: 11px; color: var(--muted); }
 
   .sidebar-nav { padding: 16px 12px; flex: 1; }
@@ -133,7 +133,7 @@
     transition: all 0.2s; color: var(--muted);
   }
   .tab.active { background: var(--accent); color: #fff; }
-  .tab:hover:not(.active) { color: var(--text); }
+  .tab:hover:not(.active) { color: var(--accent); background: rgba(79, 126, 248, 0.1); }
 
   /* PANEL */
   .panel { display: none; }
@@ -163,8 +163,8 @@
   label { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
 
   input, select, textarea {
-    background: var(--bg);
-    border: 1px solid var(--border);
+    background: #ffffff;
+    border: 1.5px solid var(--border);
     border-radius: 8px;
     padding: 10px 14px;
     color: var(--text);
@@ -189,7 +189,7 @@
   }
   .btn-primary { background: var(--accent); color: #fff; }
   .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
-  .btn-success { background: var(--accent2); color: #000; }
+  .btn-success { background: var(--accent2); color: #fff; }
   .btn-success:hover { background: #05bf8e; transform: translateY(-1px); }
   .btn-danger { background: var(--danger); color: #fff; }
   .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
@@ -245,7 +245,7 @@
   .product-card:hover { border-color: var(--accent); transform: translateY(-2px); }
   .product-card.selected { border-color: var(--accent2); background: rgba(6,214,160,0.05); }
 
-  .product-emoji { font-size: 32px; margin-bottom: 10px; }
+  .product-emoji { font-size: 16px; font-weight: 800; background: #e8effe; color: var(--accent); width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 12px; }
   .product-name { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
   .product-price { color: var(--accent2); font-weight: 700; font-size: 15px; }
   .product-seller { font-size: 11px; color: var(--muted); margin-top: 4px; }
@@ -254,7 +254,7 @@
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
   th { padding: 10px 14px; text-align: left; font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
   td { padding: 12px 14px; border-bottom: 1px solid rgba(30,45,74,0.5); }
-  tr:hover td { background: rgba(59,130,246,0.03); }
+  tr:hover td { background: var(--bg); }
 
   .badge {
     padding: 3px 10px; border-radius: 20px;
@@ -382,37 +382,37 @@
         <div class="card-title">Produk UMKM Tersedia</div>
         <div class="products-grid" id="productGrid">
           <div class="product-card" onclick="selectProduct(this, 'Kopi Arabica', 75000)">
-            <div class="product-emoji">☕</div>
+            <div class="product-emoji">KA</div>
             <div class="product-name">Kopi Arabica Premium</div>
             <div class="product-price">Rp 75.000</div>
             <div class="product-seller">Toko Kopi Nusantara</div>
           </div>
           <div class="product-card" onclick="selectProduct(this, 'Batik Tulis', 250000)">
-            <div class="product-emoji">🎨</div>
+            <div class="product-emoji">BT</div>
             <div class="product-name">Batik Tulis Solo</div>
             <div class="product-price">Rp 250.000</div>
             <div class="product-seller">Batik Sari Murni</div>
           </div>
           <div class="product-card" onclick="selectProduct(this, 'Keripik Singkong', 25000)">
-            <div class="product-emoji">🍟</div>
+            <div class="product-emoji">KS</div>
             <div class="product-name">Keripik Singkong</div>
             <div class="product-price">Rp 25.000</div>
             <div class="product-seller">Snack Bu Tini</div>
           </div>
           <div class="product-card" onclick="selectProduct(this, 'Madu Hutan', 120000)">
-            <div class="product-emoji">🍯</div>
+            <div class="product-emoji">MH</div>
             <div class="product-name">Madu Hutan Asli</div>
             <div class="product-price">Rp 120.000</div>
             <div class="product-seller">Lebah Madu Borneo</div>
           </div>
           <div class="product-card" onclick="selectProduct(this, 'Tempe Organik', 15000)">
-            <div class="product-emoji">🫘</div>
+            <div class="product-emoji">TO</div>
             <div class="product-name">Tempe Organik</div>
             <div class="product-price">Rp 15.000</div>
             <div class="product-seller">Pak Slamet Organik</div>
           </div>
           <div class="product-card" onclick="selectProduct(this, 'Tas Anyaman', 180000)">
-            <div class="product-emoji">👜</div>
+            <div class="product-emoji">TA</div>
             <div class="product-name">Tas Anyaman Bambu</div>
             <div class="product-price">Rp 180.000</div>
             <div class="product-seller">Kerajinan Jepara</div>

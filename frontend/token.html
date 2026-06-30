@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Token Generator - API Gateway</title>
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
   <style>
     .tool-shell { position: relative; z-index: 1; max-width: 980px; margin: 0 auto; padding: 28px 20px 48px; }
     .tool-topbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
@@ -14,16 +14,25 @@
   <div class="bg-animation"><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
   <main class="tool-shell">
     <header class="page-header">
-      <h2>🔑 Token Generator</h2>
+      <h2>
+        <span class="ph-icon">
+          <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        </span>
+        Token Generator
+      </h2>
       <p>Generate JWT tester dari backend endpoint /generate_token_tester/{user_id}.</p>
     </header>
     <div class="tool-topbar">
-      <a class="btn btn-outline" href="/" id="nav_back">🏠 Kembali ke Beranda</a>
-      <a class="btn btn-outline" href="/integrator/manage/routing">🔀 Routing</a>
+      <a class="btn btn-outline" href="/" id="nav_back">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Kembali ke Beranda
+      </a>
+      <a class="btn btn-outline" href="/integrator/manage/routing">
+        <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg> Routing
+      </a>
     </div>
 
     <section class="glass-card">
-      <div class="card-header"><div class="card-title"><span class="icon">👤</span> Input User ID</div></div>
+      <div class="card-header"><div class="card-title"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span> Input User ID</div></div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label" for="user_id">User ID</label>
@@ -31,15 +40,22 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="btn_gen">Aksi</label>
-          <button class="btn btn-primary" id="btn_gen">🚀 Generate Token</button>
+          <button class="btn btn-primary" id="btn_gen">
+            <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:white;fill:none;stroke-width:2;"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            Generate Token
+          </button>
         </div>
       </div>
       <div class="token-display" style="margin-top: 16px;">
         <code id="token_value">-</code>
-        <button class="copy-btn" id="btn_copy" title="Salin Token">📋</button>
+        <button class="copy-btn" id="btn_copy" title="Salin Token">
+          <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
       </div>
       <div class="response-panel" style="margin-top: 16px;">
-        <div class="response-header"><div class="response-status" id="status_line"><span>ℹ️</span> Response</div></div>
+        <div class="response-header"><div class="response-status" id="status_line">
+          <span class="status-pill"></span> Response
+        </div></div>
         <div class="response-body" id="resp">-</div>
       </div>
     </section>
@@ -54,8 +70,8 @@
 
     function setState(type, text) {
       statusLine.className = 'response-status ' + type
-      const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : '⏳'
-      statusLine.innerHTML = '<span>' + icon + '</span> ' + text
+      const icon = type === 'success' ? '<span class="status-pill" style="background:var(--brand-emerald)"></span>' : type === 'error' ? '<span class="status-pill" style="background:var(--brand-rose)"></span>' : '<span class="status-pill" style="background:var(--brand-amber)"></span>'
+      statusLine.innerHTML = icon + ' ' + text
     }
 
     document.getElementById('btn_gen').addEventListener('click', async () => {

@@ -150,7 +150,7 @@ async function kirimTransaksi() {
   const startTime = Date.now();
   document.getElementById('txResponseCard').style.display = 'block';
   document.getElementById('txResponseStatus').className = 'response-status pending';
-  document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-amber);"></span> Memproses...';
+  document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--brand-amber);"></span> Memproses...';
   document.getElementById('txResponseBody').textContent = 'Mengirim request ke server...';
 
   try {
@@ -168,16 +168,16 @@ async function kirimTransaksi() {
 
     if (data.status === 'sukses') {
       document.getElementById('txResponseStatus').className = 'response-status success';
-      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-emerald);"></span> Sukses';
+      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--brand-emerald);"></span> Sukses';
       showToast('Transaksi berhasil diproses!', 'success');
     } else {
       document.getElementById('txResponseStatus').className = 'response-status error';
-      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-rose);"></span> Gagal';
+      document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--brand-rose);"></span> Gagal';
       showToast('Transaksi gagal: ' + (data.data?.pesan || 'Unknown error'), 'error');
     }
   } catch (err) {
     document.getElementById('txResponseStatus').className = 'response-status error';
-    document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--accent-rose);"></span> Error';
+    document.getElementById('txResponseStatus').innerHTML = '<span class="status-pill" style="background:var(--brand-rose);"></span> Error';
     document.getElementById('txResponseBody').textContent = 'Error: ' + err.message;
     document.getElementById('txResponseTime').textContent = (Date.now() - startTime) + 'ms';
     showToast('Gagal mengirim: ' + err.message, 'error');
@@ -252,10 +252,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (userRole) {
     const roleEl = document.querySelector('.user-role');
     if (roleEl) {
-      let roleLabel = 'Konsumen';
-      if (userRole === 'admin') roleLabel = '👑 Admin';
-      else if (userRole === 'operator') roleLabel = '⚙️ Operator';
-      else if (userRole === 'end_user') roleLabel = '👤 End User';
+      let roleLabel = 'End User';
+      if (userRole === 'admin') roleLabel = 'Administrator';
+      else if (userRole === 'operator') roleLabel = 'Operator';
+      else if (userRole === 'end_user') roleLabel = 'End User';
       roleEl.textContent = roleLabel;
     }
   }

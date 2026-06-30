@@ -6,8 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Login ke Dashboard API Gateway UMKM">
   <title>Login — API Gateway</title>
-  <link rel="stylesheet" href="/static/style.css">
-  <link rel="stylesheet" href="/static/landing.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
+  <link rel="stylesheet" href="/static/landing.css?v=4">
 </head>
 
 <body>
@@ -64,20 +64,20 @@
       <div class="login-demo">
         <div class="demo-header">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span>Akun Demo Database (Password: <code>password123</code>)</span>
+          <span>Akun Demo — Password: <code>password123</code></span>
         </div>
-        <div class="demo-creds" style="display:flex; flex-direction:column; gap:4px; font-size: 0.85rem; text-align: left; padding: 5px 10px;">
-          <div class="demo-item" style="justify-content: space-between; margin-bottom: 2px;">
-            <span class="demo-label">👑 Admin:</span>
-            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('admin_gateway')">admin_gateway</code>
+        <div style="display:flex; flex-direction:column; gap:6px; margin-top: 8px;">
+          <div class="demo-item">
+            <span class="demo-label">Admin</span>
+            <code class="demo-value" onclick="fillCreds('admin_gateway')">admin_gateway</code>
           </div>
-          <div class="demo-item" style="justify-content: space-between; margin-bottom: 2px;">
-            <span class="demo-label">⚙️ Operator:</span>
-            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('operator_01')">operator_01</code>
+          <div class="demo-item">
+            <span class="demo-label">Operator</span>
+            <code class="demo-value" onclick="fillCreds('operator_01')">operator_01</code>
           </div>
-          <div class="demo-item" style="justify-content: space-between;">
-            <span class="demo-label">👤 User:</span>
-            <code class="demo-value" style="cursor:pointer; text-decoration: underline;" onclick="fillCreds('enduser_demo')">enduser_demo</code>
+          <div class="demo-item">
+            <span class="demo-label">End User</span>
+            <code class="demo-value" onclick="fillCreds('enduser_demo')">enduser_demo</code>
           </div>
         </div>
       </div>

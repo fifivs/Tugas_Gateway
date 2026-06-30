@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Backtracking Routing - API Gateway UMKM</title>
   <meta name="description" content="Visualisasi algoritma backtracking untuk routing failover pada API Gateway ekosistem UMKM" />
-  <link rel="stylesheet" href="/static/style.css">
+  <link rel="stylesheet" href="/static/style.css?v=4">
   <style>
     .tool-shell {
       position: relative;
@@ -36,8 +36,8 @@
       align-items: center;
       gap: 6px;
       padding: 14px 18px;
-      background: rgba(255,255,255,0.03);
-      border: 2px solid var(--border-glass);
+      background: var(--bg-surface-2);
+      border: 2px solid var(--border-light);
       border-radius: var(--radius-md);
       min-width: 160px;
       max-width: 200px;
@@ -52,17 +52,17 @@
       transform: scale(1) translateY(0);
     }
     .trace-step.sukses {
-      border-color: var(--accent-emerald);
-      background: rgba(16, 185, 129, 0.08);
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
+      border-color: var(--brand-emerald);
+      background: var(--brand-emerald-light);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.12);
     }
     .trace-step.gagal {
-      border-color: var(--accent-rose);
-      background: rgba(244, 63, 94, 0.06);
+      border-color: var(--brand-rose);
+      background: var(--brand-rose-light);
     }
     .trace-step.backtrack {
-      border-color: var(--accent-amber);
-      background: rgba(245, 158, 11, 0.06);
+      border-color: var(--brand-amber);
+      background: var(--brand-amber-light);
     }
     .trace-step .step-num {
       font-size: 11px;
@@ -100,16 +100,16 @@
       margin-top: 2px;
     }
     .trace-step .step-badge.s-success {
-      background: rgba(16, 185, 129, 0.2);
-      color: var(--accent-emerald);
+      background: var(--brand-emerald-light);
+      color: #065f46;
     }
     .trace-step .step-badge.s-fail {
-      background: rgba(244, 63, 94, 0.2);
-      color: var(--accent-rose);
+      background: var(--brand-rose-light);
+      color: #9f1239;
     }
     .trace-step .step-badge.s-backtrack {
-      background: rgba(245, 158, 11, 0.2);
-      color: var(--accent-amber);
+      background: var(--brand-amber-light);
+      color: #92400e;
     }
     .trace-step .step-action {
       font-size: 10px;
@@ -142,15 +142,16 @@
       margin-top: 12px;
     }
     .candidate-card {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border-glass);
+      background: var(--bg-surface-2);
+      border: 1.5px solid var(--border-light);
       border-radius: var(--radius-md);
       padding: 16px;
       transition: var(--transition);
     }
     .candidate-card:hover {
-      border-color: rgba(255,255,255,0.12);
+      border-color: rgba(79, 126, 248, 0.3);
       transform: translateY(-2px);
+      box-shadow: var(--shadow-sm);
     }
     .candidate-card .cc-header {
       display: flex;
@@ -167,8 +168,8 @@
     .candidate-card .cc-count {
       font-size: 11px;
       font-weight: 600;
-      background: rgba(139, 92, 246, 0.15);
-      color: var(--accent-purple);
+      background: #f3e8ff;
+      color: var(--brand-violet);
       padding: 2px 8px;
       border-radius: 20px;
     }
@@ -183,7 +184,7 @@
       padding: 6px 0;
       font-size: 12px;
       color: var(--text-secondary);
-      border-bottom: 1px solid rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border-light);
     }
     .candidate-card .cc-list li:last-child {
       border-bottom: none;
@@ -211,9 +212,9 @@
       letter-spacing: 0.5px;
       flex-shrink: 0;
     }
-    .cc-label-tag.primary { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); }
-    .cc-label-tag.mirror { background: rgba(139, 92, 246, 0.15); color: var(--accent-purple); }
-    .cc-label-tag.fallback { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+    .cc-label-tag.primary  { background: var(--brand-blue-light);  color: var(--brand-blue-dark); }
+    .cc-label-tag.mirror   { background: #f3e8ff; color: var(--brand-violet); }
+    .cc-label-tag.fallback { background: var(--brand-amber-light); color: #92400e; }
 
     /* ===== STATS SECTION ===== */
     .stats-mini-grid {
@@ -223,11 +224,13 @@
       margin-bottom: 20px;
     }
     .stat-mini {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border-glass);
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-light);
       border-radius: var(--radius-sm);
       padding: 14px;
       text-align: center;
+      transition: var(--transition);
+      box-shadow: var(--shadow-xs);
     }
     .stat-mini .sm-value {
       font-size: 24px;
@@ -245,14 +248,14 @@
 
     /* ===== ALGO EXPLANATION ===== */
     .algo-box {
-      background: rgba(59, 130, 246, 0.05);
-      border: 1px solid rgba(59, 130, 246, 0.15);
+      background: #eff6ff;
+      border: 1.5px solid #bfdbfe;
       border-radius: var(--radius-md);
       padding: 20px;
       margin-bottom: 20px;
     }
     .algo-box h4 {
-      color: var(--accent-blue);
+      color: var(--brand-blue);
       font-size: 15px;
       margin-bottom: 10px;
       display: flex;
@@ -260,7 +263,8 @@
       gap: 8px;
     }
     .algo-box pre {
-      background: rgba(0,0,0,0.3);
+      background: var(--bg-surface-2);
+      border: 1px solid var(--border-light);
       border-radius: var(--radius-sm);
       padding: 14px;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
@@ -269,10 +273,10 @@
       line-height: 1.6;
       overflow-x: auto;
     }
-    .algo-box .pseudocode-keyword { color: var(--accent-purple); font-weight: 600; }
+    .algo-box .pseudocode-keyword { color: var(--brand-violet); font-weight: 600; }
     .algo-box .pseudocode-comment { color: var(--text-muted); font-style: italic; }
-    .algo-box .pseudocode-fn { color: var(--accent-cyan); }
-    .algo-box .pseudocode-str { color: var(--accent-emerald); }
+    .algo-box .pseudocode-fn { color: var(--brand-blue); }
+    .algo-box .pseudocode-str { color: var(--brand-emerald); }
 
     /* ===== SELECT DROPDOWN ===== */
     select.form-input {
@@ -284,7 +288,7 @@
       cursor: pointer;
     }
     select.form-input option {
-      background: #1e293b;
+      background: var(--bg-surface);
       color: var(--text-primary);
     }
 
@@ -317,6 +321,91 @@
       .form-row,
       .candidates-grid { grid-template-columns: 1fr; }
       .trace-container { flex-direction: column; align-items: center; }
+    }
+
+    /* ===== SMART SCORE PROBE TABLE ===== */
+    .probe-table-wrap {
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+    .probe-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .probe-table th {
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-glass);
+      background: rgba(0,0,0,0.15);
+    }
+    .probe-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      vertical-align: middle;
+    }
+    .probe-table tr:hover td {
+      background: var(--brand-blue-light);
+    }
+    .probe-table tr.best-candidate td {
+      background: var(--brand-emerald-light);
+    }
+    .probe-alive  { color: var(--brand-emerald); font-weight: 700; }
+    .probe-dead   { color: var(--brand-rose);    font-weight: 700; }
+    .probe-score-best {
+      color: var(--brand-emerald);
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .probe-score-normal {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+    .score-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .score-bar {
+      flex: 1;
+      height: 6px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+    .score-bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--accent-emerald), var(--accent-blue));
+      transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .phase-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .phase-1 {
+      background: var(--brand-blue-light);
+      color: var(--brand-blue);
+      border: 1.5px solid rgba(79, 126, 248, 0.2);
+    }
+    .phase-2 {
+      background: #f3e8ff;
+      color: var(--brand-violet);
+      border: 1.5px solid rgba(139, 92, 246, 0.2);
     }
   </style>
 </head>
@@ -457,11 +546,48 @@
       </div>
     </section>
 
-    <!-- TRACE VISUALIZER -->
+    <!-- SMART SCORE PROBE RESULTS (Phase 1) -->
+    <section class="glass-card" id="section-probe" style="display: none;">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></span>
+          <span class="phase-label phase-1">Phase 1</span>
+          Smart Score Probe — Ranking Kandidat
+        </div>
+        <div id="probe_summary" style="font-size: 13px; color: var(--text-secondary);"></div>
+      </div>
+      <p style="color: var(--text-secondary); font-size: 13px; margin-bottom: 14px;">
+        Semua kandidat di-probe <strong>paralel</strong> sebelum backtracking dimulai.
+        Score gabungan dari <code style="color:var(--accent-blue)">latency (40%)</code> +
+        <code style="color:var(--accent-amber)">error_rate historis (40%)</code> +
+        <code style="color:var(--accent-purple)">priority (20%)</code> —
+        <strong>score rendah = dicoba pertama</strong>.
+      </p>
+      <div class="probe-table-wrap">
+        <table class="probe-table" id="probe_table">
+          <thead>
+            <tr>
+              <th>Rank</th>
+              <th>Kandidat</th>
+              <th>URL</th>
+              <th>Status Probe</th>
+              <th>Latency</th>
+              <th>Error Rate</th>
+              <th>Priority</th>
+              <th>Smart Score</th>
+            </tr>
+          </thead>
+          <tbody id="probe_tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TRACE VISUALIZER (Phase 2) -->
     <section class="glass-card" id="section-trace" style="display: none;">
       <div class="card-header">
         <div class="card-title">
           <span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <span class="phase-label phase-2">Phase 2</span>
           Trace Backtracking — Step by Step
         </div>
         <div id="trace_summary" style="font-size: 13px; color: var(--text-secondary);"></div>
@@ -593,7 +719,64 @@
       }
     });
 
-    // --- Trace Visualizer ---
+    // --- Probe Visualizer (Phase 1) ---
+    function renderProbe(probeResults) {
+      const section  = document.getElementById('section-probe');
+      const tbody    = document.getElementById('probe_tbody');
+      const summary  = document.getElementById('probe_summary');
+
+      if (!probeResults || probeResults.length === 0) {
+        section.style.display = 'none';
+        return;
+      }
+
+      section.style.display = 'block';
+      const aliveCount = probeResults.filter(p => p.alive).length;
+      summary.innerHTML = `<span style="color:var(--brand-emerald);font-weight:600">${aliveCount} server online</span> dari ${probeResults.length} kandidat — diurutkan dari score terbaik`;
+
+      const maxScore = Math.max(...probeResults.map(p => p.score));
+
+      tbody.innerHTML = probeResults.map((p, i) => {
+        const isBest  = i === 0;
+        const barPct  = maxScore > 0 ? Math.round((p.score / maxScore) * 100) : 0;
+        const scoreClass = isBest ? 'probe-score-best' : 'probe-score-normal';
+        const rankBadge = isBest
+          ? `<span style="background:var(--brand-emerald-light);color:#065f46;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">#1 Terbaik</span>`
+          : `<span style="color:var(--text-muted);font-weight:600">#${i+1}</span>`;
+        const aliveHtml = p.alive
+          ? `<span class="probe-alive">Online</span>`
+          : `<span class="probe-dead">Offline</span>`;
+        const latencyColor = p.latency_ms < 100 ? 'var(--brand-emerald)' : p.latency_ms < 500 ? 'var(--brand-amber)' : 'var(--brand-rose)';
+        const errColor = p.error_rate < 10 ? 'var(--brand-emerald)' : p.error_rate < 30 ? 'var(--brand-amber)' : 'var(--brand-rose)';
+
+        return `<tr class="${isBest ? 'best-candidate' : ''}">
+          <td>${rankBadge}</td>
+          <td style="font-weight:700;color:var(--text-primary);text-transform:capitalize">${p.label}</td>
+          <td style="font-family:monospace;font-size:11px;color:var(--text-muted)">${p.url}</td>
+          <td>${aliveHtml}</td>
+          <td style="color:${latencyColor};font-weight:600">${p.latency_ms}ms</td>
+          <td style="color:${errColor};font-weight:600">${p.error_rate}%</td>
+          <td style="color:var(--text-muted)">#${p.priority}</td>
+          <td>
+            <div class="score-bar-wrap">
+              <span class="${scoreClass}">${p.score.toFixed(4)}</span>
+              <div class="score-bar"><div class="score-bar-fill" style="width:${barPct}%"></div></div>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      // Animate bar fills
+      setTimeout(() => {
+        document.querySelectorAll('.score-bar-fill').forEach(el => {
+          el.style.width = el.style.width; // trigger reflow
+        });
+      }, 50);
+
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // --- Trace Visualizer (Phase 2) ---
     function renderTrace(trace, finalStatus) {
       const container = document.getElementById('trace_visual');
       const section = document.getElementById('section-trace');
@@ -724,7 +907,11 @@
           statusEl.innerHTML = PILL_ERR + ` Routing GAGAL setelah ${data.data?.total_attempts || '?'} attempts`;
         }
 
-        // Render trace visualization
+        // Render probe visualization (Phase 1)
+        const probeResults = data.data?.probe_results || [];
+        renderProbe(probeResults);
+
+        // Render trace visualization (Phase 2)
         const trace = data.data?.trace || [];
         renderTrace(trace, data.status);
 
